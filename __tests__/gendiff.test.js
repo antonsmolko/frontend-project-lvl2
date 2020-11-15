@@ -1,8 +1,8 @@
-import genDiff from '../index.js';
 import path from 'path';
 import { promises as fs } from 'fs';
+import genDiff from '../index.js';
 
-const  getFixturePath = (filename) => path.join('__fixtures__', filename);
+const getFixturePath = (filename) => path.join('__fixtures__', filename);
 const readFile = (filename) => fs.readFile(getFixturePath(filename), 'utf-8');
 
 let expected;
@@ -14,7 +14,7 @@ test('Json Diff Test', async () => {
   const filePath1 = await getFixturePath('/file1.json');
   const filePath2 = await getFixturePath('/file2.json');
 
-  const diff = await genDiff(filePath1, filePath2)
+  const diff = await genDiff(filePath1, filePath2);
 
   expect(diff).toBe(expected);
 });

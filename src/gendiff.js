@@ -40,7 +40,7 @@ const getYmlFileData = (filePath) => (
 const fileDataMap = {
   json: (filePath) => getJsonFileData(filePath),
   yml: (filePath) => getYmlFileData(filePath),
-}
+};
 
 /**
  * Returns file data
@@ -69,5 +69,5 @@ export default async (filename1, filename2) => {
   const data1 = getFileData(path1);
   const data2 = getFileData(path2);
 
-  return await parser(data1, data2);
+  return parser(data1, data2);
 };
