@@ -1,6 +1,6 @@
 {
   "name": "@hexlet/code",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "![Actions Status](/workflows/hexlet-check/badge.svg)",
   "bin": {
     "gendiff": "bin/gendiff.js"
@@ -11,7 +11,8 @@
   },
   "type": "module",
   "scripts": {
-    "test": "npx -n '--experimental-vm-modules --no-warnings' jest --watch"
+    "test": "npx -n '--experimental-vm-modules --no-warnings' jest --watch",
+    "start": "node index.js"
   },
   "repository": {
     "type": "git",
@@ -30,6 +31,7 @@
   "dependencies": {
     "@types/jest": "^26.0.15",
     "commander": "^6.2.0",
+    "debug": "^4.2.0",
     "js-yaml": "^3.14.0",
     "lodash": "^4.17.20"
   },
