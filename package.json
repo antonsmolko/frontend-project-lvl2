@@ -11,7 +11,8 @@
   },
   "type": "module",
   "scripts": {
-    "test": "npx -n '--experimental-vm-modules --no-warnings' jest --watch",
+    "test": "npx -n '--experimental-vm-modules --no-warnings' jest",
+    "test-watch": "npm test --watch",
     "start": "node index.js"
   },
   "repository": {
