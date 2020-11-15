@@ -1,6 +1,7 @@
-import _ from 'lodash';
 import path from 'path';
 import fs from 'fs';
+import yaml from 'js-yaml';
+import parser from './parser.js';
 
 /**
  * Returns absolute file path
@@ -18,9 +19,40 @@ const getFullPath = async (filePath) => {
  *
  * @param {string} filePath
  */
-const getFileInfo = (filePath) => {
+const getJsonFileData = (filePath) => {
+  const info = fs.readFileSync(filePath, 'utf-8');
+
+  return JSON.parse(info);
+};
+
+/**
+ * Returns file data from yml format
+ *
+ * @param {string} filePath
+ */
+const getYmlFileData = (filePath) => (
+  yaml.safeLoad(fs.readFileSync(filePath, 'utf8'))
+);
+
+/**
+ * @constant {object} fileDataMap
+ */
+const fileDataMap = {
+  json: (filePath) => getJsonFileData(filePath),
+  yml: (filePath) => getYmlFileData(filePath),
+}
+
+/**
+ * Returns file data
+ *
+ * @param {string} filePath
+ * @return {object}
+ */
+const getFileData = (filePath) => {
   try {
-    return fs.readFileSync(filePath, 'utf-8');
+    const ext = path.extname(filePath).substr(1);
+
+    return fileDataMap[ext](filePath);
   } catch (e) {
     console.log(`File '${filePath}' not found!`);
     throw new Error(e);
@@ -28,44 +60,14 @@ const getFileInfo = (filePath) => {
 };
 
 /**
- * Returns parsed data of file
- *
- * @param {string} path
+ * Returns template of compared result two object of data
  */
-const getFileData = async (filePath) => {
-  const info = await getFileInfo(filePath);
-
-  return JSON.parse(info);
-};
-
 export default async (filename1, filename2) => {
   const path1 = await getFullPath(filename1);
   const path2 = await getFullPath(filename2);
 
-  const data1 = await getFileData(path1);
-  const data2 = await getFileData(path2);
+  const data1 = getFileData(path1);
+  const data2 = getFileData(path2);
 
-  const union = { ...data2, ...data1 };
-  const objRowToString = (obj, key, sign = ' ') => `\n  ${sign} ${key}: ${obj[key]}`;
-
-  const result = Object
-    .keys(union)
-    .sort()
-    .reduce((acc, key) => {
-      if (_.has(data2, key)) {
-        if (data2[key] === union[key]) {
-          const sign = _.has(data1, key) ? ' ' : '+';
-          acc += objRowToString(data2, key, sign);
-        } else {
-          acc += objRowToString(data1, key, '-');
-          acc += objRowToString(data2, key, '+');
-        }
-      } else {
-        acc += objRowToString(data1, key, '-');
-      }
-
-      return acc;
-    }, '');
-
-  return `{${result}\n}`;
+  return await parser(data1, data2);
 };
