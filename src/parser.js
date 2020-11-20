@@ -17,7 +17,7 @@ function getDefaultAst(obj) {
         type: 'default',
         key,
         isObjectValue: isObject(obj[key]),
-        value: isObject(obj[key]) ? getDefaultAst(obj[key]) : obj[key]
+        value: isObject(obj[key]) ? getDefaultAst(obj[key]) : obj[key],
       };
 
       acc.push(item);
@@ -35,19 +35,19 @@ const parse = (target, sources) => {
   const sourcesKeys = Object.keys(sources);
   if (!sourcesKeys.length) return target;
 
-  const merged = { ...target, ...sources};
+  const merged = { ...target, ...sources };
 
   return Object
     .keys(merged)
     .sort()
     .reduce((acc, key) => {
       if (_.has(target, key)) {
-        if (_.isEqual(target[key],  merged[key])) {
+        if (_.isEqual(target[key], merged[key])) {
           acc.push({
             type: _.has(sources, key) ? 'default' : 'missing',
             key,
             isObjectValue: isObject(target[key]),
-            value: isObject(target[key]) ? getDefaultAst(target[key]) : target[key]
+            value: isObject(target[key]) ? getDefaultAst(target[key]) : target[key],
           });
         } else if (isObject(target[key])) {
           if (_.has(sources, key)) {
@@ -56,29 +56,29 @@ const parse = (target, sources) => {
                 type: 'default',
                 key,
                 isObjectValue: true,
-                value: parse(target[key], merged[key])
-              })
+                value: parse(target[key], merged[key]),
+              });
             } else {
-               acc.push({
+              acc.push({
                 type: 'missing',
                 key,
                 isObjectValue: isObject(target[key]),
-                value: isObject(target[key]) ? getDefaultAst(target[key]) : target[key]
-              })
+                value: isObject(target[key]) ? getDefaultAst(target[key]) : target[key],
+              });
               acc.push({
                 type: 'adding',
                 key,
                 isObjectValue: false,
-                value: sources[key]
-              })
+                value: sources[key],
+              });
             }
           } else {
             acc.push({
               type: 'missing',
               key,
               isObjectValue: true,
-              value: getDefaultAst(target[key])
-            })
+              value: getDefaultAst(target[key]),
+            });
           }
         } else {
           acc.push({
@@ -99,12 +99,12 @@ const parse = (target, sources) => {
           type: 'adding',
           key,
           isObjectValue: isObject(sources[key]),
-          value: isObject(sources[key]) ? getDefaultAst(sources[key]) : sources[key]
+          value: isObject(sources[key]) ? getDefaultAst(sources[key]) : sources[key],
         });
       }
 
       return acc;
     }, []);
-}
+};
 
 export default parse;

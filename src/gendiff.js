@@ -60,7 +60,7 @@ const getFileData = (filePath) => {
 };
 
 const formatters = {
-  stylish
+  stylish,
 };
 
 /**

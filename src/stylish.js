@@ -24,14 +24,21 @@ const stylish = (data1, data2) => {
   const signMap = {
     default: '   ',
     missing: '  -',
-    adding: '  +'
+    adding: '  +',
   };
 
   const iter = (data, offset = '') => {
-    const newOffset = offset + tab
+    const newOffset = offset + tab;
     const formattedData = data.reduce((acc, item) => {
       let output = acc;
-      const { key, value, isObjectValue, type } = item;
+
+      const {
+        key,
+        value,
+        isObjectValue,
+        type,
+      } = item;
+
       const sign = signMap[type];
       const val = isObjectValue
         ? () => iter(value, newOffset)
@@ -46,6 +53,6 @@ const stylish = (data1, data2) => {
   };
 
   return iter(parsedData);
-}
+};
 
 export default stylish;
