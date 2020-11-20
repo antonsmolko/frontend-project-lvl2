@@ -23,7 +23,7 @@ $ sudo npm link
 
 ### Example with .json files:
 
-[![asciicast](https://asciinema.org/a/vlvl9iGJmJfgebV5bOqVjNmZp.svg)](https://asciinema.org/a/vlvl9iGJmJfgebV5bOqVjNmZp)
+[![asciicast](https://asciinema.org/a/iZNmXrMscTWNXFY53xy2Z4MJh.svg)](https://asciinema.org/a/iZNmXrMscTWNXFY53xy2Z4MJh)
 
 ```
 ./examples/file1.json
@@ -60,7 +60,7 @@ $ gendiff ./examples/file1.json ./examples/file2.json
 ```
 ### Example with .yml files:
 
-[![asciicast](https://asciinema.org/a/P2bANtLmXXdXP61andy63hlMQ.svg)](https://asciinema.org/a/P2bANtLmXXdXP61andy63hlMQ)
+[![asciicast](https://asciinema.org/a/yRBPgubIjY8DRUVr8kQIw7A1O.svg)](https://asciinema.org/a/yRBPgubIjY8DRUVr8kQIw7A1O)
 
 ```
 ./examples/file1.yml

@@ -1,47 +1,110 @@
 import _ from 'lodash';
 
 /**
- * Returns compared string with sign
- *
- * @param {object} obj file data
- * @param {string} key object data key
- * @param {string} sign ' ', '+', '-'
- *
- * @return {string} '  + paramOne: 20'
+ * Simple object check.
+ * @param item
+ * @returns {boolean}
  */
-const objRowToString = (obj, key, sign = ' ') => `\n  ${sign} ${key}: ${obj[key]}`;
+function isObject(item) {
+  return (item && typeof item === 'object' && !Array.isArray(item));
+}
+
+function getDefaultAst(obj) {
+  return Object
+    .keys(obj)
+    .reduce((acc, key) => {
+      const item = {
+        type: 'default',
+        key,
+        isObjectValue: isObject(obj[key]),
+        value: isObject(obj[key]) ? getDefaultAst(obj[key]) : obj[key]
+      };
+
+      acc.push(item);
+
+      return acc;
+    }, []);
+}
 
 /**
- * Returns template of compared result two object of data
- *
- * @param {object} data1
- * @param {object} data2
- *
- * @return {string} '{}'
+ * Deep merge two objects.
+ * @param target
+ * @param ...sources
  */
-export default async (data1, data2) => {
-  const union = { ...data2, ...data1 };
+const parse = (target, sources) => {
+  const sourcesKeys = Object.keys(sources);
+  if (!sourcesKeys.length) return target;
 
-  const result = Object
-    .keys(union)
+  const merged = { ...target, ...sources};
+
+  return Object
+    .keys(merged)
     .sort()
     .reduce((acc, key) => {
-      let output = acc;
-
-      if (_.has(data2, key)) {
-        if (data2[key] === union[key]) {
-          const sign = _.has(data1, key) ? ' ' : '+';
-          output += objRowToString(data2, key, sign);
+      if (_.has(target, key)) {
+        if (_.isEqual(target[key],  merged[key])) {
+          acc.push({
+            type: _.has(sources, key) ? 'default' : 'missing',
+            key,
+            isObjectValue: isObject(target[key]),
+            value: isObject(target[key]) ? getDefaultAst(target[key]) : target[key]
+          });
+        } else if (isObject(target[key])) {
+          if (_.has(sources, key)) {
+            if (isObject(sources[key])) {
+              acc.push({
+                type: 'default',
+                key,
+                isObjectValue: true,
+                value: parse(target[key], merged[key])
+              })
+            } else {
+               acc.push({
+                type: 'missing',
+                key,
+                isObjectValue: isObject(target[key]),
+                value: isObject(target[key]) ? getDefaultAst(target[key]) : target[key]
+              })
+              acc.push({
+                type: 'adding',
+                key,
+                isObjectValue: false,
+                value: sources[key]
+              })
+            }
+          } else {
+            acc.push({
+              type: 'missing',
+              key,
+              isObjectValue: true,
+              value: getDefaultAst(target[key])
+            })
+          }
         } else {
-          output += objRowToString(data1, key, '-');
-          output += objRowToString(data2, key, '+');
+          acc.push({
+            type: 'missing',
+            key,
+            isObjectValue: false,
+            value: target[key],
+          });
+          acc.push({
+            type: 'adding',
+            key,
+            isObjectValue: false,
+            value: merged[key],
+          });
         }
-      } else {
-        output += objRowToString(data1, key, '-');
+      } else if (_.has(sources, key)) {
+        acc.push({
+          type: 'adding',
+          key,
+          isObjectValue: isObject(sources[key]),
+          value: isObject(sources[key]) ? getDefaultAst(sources[key]) : sources[key]
+        });
       }
 
-      return output;
-    }, '');
+      return acc;
+    }, []);
+}
 
-  return `{${result}\n}`;
-};
+export default parse;
