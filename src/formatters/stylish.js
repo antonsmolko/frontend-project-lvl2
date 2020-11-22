@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import parse from '../parser.js';
 import { isObject } from '../helpers.js';
 
@@ -36,24 +37,17 @@ export default (data1, data2) => {
   const iter = (data, offset = '') => {
     const newOffset = offset + tab;
     const formattedData = data.reduce((acc, item) => {
-      const {
-        key,
-        value,
-        oldValue,
-        state,
-      } = item;
-
-      const sign = signMap[state];
+      const sign = signMap[item.type];
 
       let output = '';
 
-      if (state === 'object') {
-        output = formatString(key, iter(value, newOffset), sign, offset);
+      if (_.has(item, 'children')) {
+        output = formatString(item.key, iter(item.children, newOffset), sign, offset);
       } else {
-        output = state === 'updating'
-          ? formatString(key, oldValue, signMap.missing, offset)
-          + formatString(key, value, signMap.adding, offset)
-          : formatString(key, value, sign, offset);
+        output = item.type === 'updating'
+          ? formatString(item.key, item.oldValue, signMap.missing, offset)
+          + formatString(item.key, item.value, signMap.adding, offset)
+          : formatString(item.key, item.value, sign, offset);
       }
 
       return acc + output;

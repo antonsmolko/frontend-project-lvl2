@@ -11,7 +11,7 @@ const getFormatValue = (value) => {
 
 const getFormatPath = (path) => path.join('.');
 
-const generateRowsFromObject = (obj, path, fn) => Object
+const generateRowsFromChildren = (obj, path, fn) => Object
   .keys(obj)
   .reduce((acc, key) => [...acc, fn([...path, key], obj[key])], '')
   .join('\n');
@@ -25,27 +25,25 @@ const postfix = {
 };
 
 const getFormatRow = (path, item) => (
-  `Property '${getFormatPath(path)}' ${postfix[item.state](item)}`
+  `Property '${getFormatPath(path)}' ${postfix[item.type](item)}`
 );
 
-function generateRow(path, item) {
-  const { state, key, value } = item;
-
-  return state === 'object'
-    ? generateRowsFromObject(value, [...path, key], generateRow)
-    : getFormatRow(path, item);
-}
+const generateRow = (path, item) => (
+  _.has(item, 'children')
+    ? generateRowsFromChildren(item.children, [...path, item.key], generateRow)
+    : getFormatRow(path, item)
+);
 
 export default (data1, data2) => {
   const parsedData = parse(data1, data2);
 
   const iter = (data, path = []) => data
     .reduce((acc, item) => {
-      if (item.state === 'object') {
-        return [...acc, iter(item.value, [...path, item.key])];
+      if (_.has(item, 'children')) {
+        return [...acc, iter(item.children, [...path, item.key])];
       }
 
-      if (item.state !== 'equal') {
+      if (item.type !== 'equal') {
         return [...acc, generateRow([...path, item.key], item)];
       }
 

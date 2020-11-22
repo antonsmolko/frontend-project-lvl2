@@ -7,12 +7,14 @@ const readFile = (filename) => fs.readFile(getFixturePath(filename), 'utf-8');
 
 let expectedStylish;
 let expectedPlain;
+let expectedJson;
 let path1;
 let path2;
 
 beforeEach(async () => {
   expectedStylish = await readFile('/stylish.txt');
   expectedPlain = await readFile('/plain.txt');
+  expectedJson = await readFile('/json.txt');
 });
 
 describe('Test Diff with Json', () => {
@@ -21,14 +23,19 @@ describe('Test Diff with Json', () => {
     path2 = await getFixturePath('/file2.json');
   });
 
-  test('Json Stylish Test', async () => {
+  test('Stylish Test', async () => {
     const diff = await genDiff(path1, path2);
     expect(diff).toBe(expectedStylish);
   });
 
-  test('Json Plain Test', async () => {
+  test('Plain Test', async () => {
     const diff = await genDiff(path1, path2, 'plain');
     expect(diff).toBe(expectedPlain);
+  });
+
+  test('Json Test', async () => {
+    const diff = await genDiff(path1, path2, 'json');
+    expect(diff).toBe(expectedJson);
   });
 });
 
@@ -38,13 +45,18 @@ describe('Test Diff with Yml', () => {
     path2 = await getFixturePath('/file2.yml');
   });
 
-  test('Yml Stylish Test', async () => {
+  test('Stylish Test', async () => {
     const diff = await genDiff(path1, path2);
     expect(diff).toBe(expectedStylish);
   });
 
-  test('Yml Plain Test', async () => {
+  test('Plain Test', async () => {
     const diff = await genDiff(path1, path2, 'plain');
     expect(diff).toBe(expectedPlain);
+  });
+
+  test('Json Test', async () => {
+    const diff = await genDiff(path1, path2, 'json');
+    expect(diff).toBe(expectedJson);
   });
 });

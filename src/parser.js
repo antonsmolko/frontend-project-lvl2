@@ -18,19 +18,19 @@ const parse = (target, sources) => {
     .reduce((acc, key) => {
       if (isObject(target[key]) && isObject(sources[key])) {
         acc.push({
-          state: 'object',
+          type: 'equal',
           key,
-          value: parse(target[key], sources[key]),
+          children: parse(target[key], sources[key]),
         });
       } else if (_.isEqual(target[key], sources[key])) {
         acc.push({
-          state: 'equal',
+          type: 'equal',
           key,
           value: target[key],
         });
       } else if (_.has(target, key) && _.has(sources, key)) {
         acc.push({
-          state: 'updating',
+          type: 'updating',
           key,
           oldValue: target[key],
           value: sources[key],
@@ -38,14 +38,14 @@ const parse = (target, sources) => {
       } else {
         if (_.has(target, key)) {
           acc.push({
-            state: 'missing',
+            type: 'missing',
             key,
             value: target[key],
           });
         }
         if (_.has(sources, key)) {
           acc.push({
-            state: 'adding',
+            type: 'adding',
             key,
             value: sources[key],
           });
