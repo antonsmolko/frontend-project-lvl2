@@ -8,8 +8,8 @@ import formatters from './formatters/index.js';
  *
  * @param {string} filePath
  */
-const getFullPath = async (filePath) => {
-  const fullPath = await path.resolve(process.cwd(), filePath);
+const getFullPath = (filePath) => {
+  const fullPath = path.resolve(process.cwd(), filePath);
 
   return fullPath;
 };
@@ -62,9 +62,9 @@ const getFileData = (filePath) => {
 /**
  * Returns template of compared result two object of data
  */
-export default async (filename1, filename2, formatName = 'stylish') => {
-  const path1 = await getFullPath(filename1);
-  const path2 = await getFullPath(filename2);
+export default (filename1, filename2, formatName = 'stylish') => {
+  const path1 = getFullPath(filename1);
+  const path2 = getFullPath(filename2);
 
   const data1 = getFileData(path1);
   const data2 = getFileData(path2);
