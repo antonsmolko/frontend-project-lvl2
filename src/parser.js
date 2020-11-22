@@ -11,6 +11,7 @@ const parse = (target, sources) => {
   if (!sourcesKeys.length) return target;
 
   const merged = { ...target, ...sources };
+  console.log('merged ', merged)
 
   return Object
     .keys(merged)

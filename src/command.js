@@ -1,7 +1,5 @@
-import { Command } from 'commander';
+import { program } from 'commander';
 import genDif from './gendiff.js';
-
-const program = new Command();
 
 program
   .version('1.0.0')

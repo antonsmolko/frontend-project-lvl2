@@ -69,8 +69,6 @@ export default async (filename1, filename2, formatName = 'stylish') => {
   const data1 = getFileData(path1);
   const data2 = getFileData(path2);
 
-  console.log(data1)
-
   const formatter = formatters(formatName);
 
   return formatter(data1, data2);
