@@ -5,58 +5,36 @@ import genDiff from '../index.js';
 const getFixturePath = (filename) => path.join('__fixtures__', filename);
 const readFile = (filename) => fs.readFile(getFixturePath(filename), 'utf-8');
 
-let expectedStylish;
-let expectedPlain;
-let expectedJson;
-let path1;
-let path2;
+let stylishResult;
+let plainResult;
+let jsonResult;
 
 beforeEach(async () => {
-  expectedStylish = await readFile('/stylish.txt');
-  expectedPlain = await readFile('/plain.txt');
-  expectedJson = await readFile('/json.txt');
+  stylishResult = await readFile('/stylish.txt');
+  plainResult = await readFile('/plain.txt');
+  jsonResult = await readFile('/json.txt');
 });
 
-describe('Test Diff with Json', () => {
-  beforeEach(async () => {
-    path1 = await getFixturePath('/file1.json');
-    path2 = await getFixturePath('/file2.json');
-  });
+const formats = ['json', 'yml'];
 
-  test('Stylish Test', async () => {
-    const diff = await genDiff(path1, path2);
-    expect(diff).toBe(expectedStylish);
-  });
+formats.forEach(async (format) => {
+  const path1 = await getFixturePath(`/file1.${format}`);
+  const path2 = await getFixturePath(`/file2.${format}`);
 
-  test('Plain Test', async () => {
-    const diff = await genDiff(path1, path2, 'plain');
-    expect(diff).toBe(expectedPlain);
-  });
+  describe(`Test Diff with .${format} format`, () => {
+    test('Stylish Test', async () => {
+      const diff = await genDiff(path1, path2);
+      expect(diff).toBe(stylishResult);
+    });
 
-  test('Json Test', async () => {
-    const diff = await genDiff(path1, path2, 'json');
-    expect(diff).toBe(expectedJson);
-  });
-});
+    test('Plain Test', async () => {
+      const diff = await genDiff(path1, path2, 'plain');
+      expect(diff).toBe(plainResult);
+    });
 
-describe('Test Diff with Yml', () => {
-  beforeEach(async () => {
-    path1 = await getFixturePath('/file1.yml');
-    path2 = await getFixturePath('/file2.yml');
-  });
-
-  test('Stylish Test', async () => {
-    const diff = await genDiff(path1, path2);
-    expect(diff).toBe(expectedStylish);
-  });
-
-  test('Plain Test', async () => {
-    const diff = await genDiff(path1, path2, 'plain');
-    expect(diff).toBe(expectedPlain);
-  });
-
-  test('Json Test', async () => {
-    const diff = await genDiff(path1, path2, 'json');
-    expect(diff).toBe(expectedJson);
+    test('Json Test', async () => {
+      const diff = await genDiff(path1, path2, 'json');
+      expect(diff).toBe(jsonResult);
+    });
   });
 });
