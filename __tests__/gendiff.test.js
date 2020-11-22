@@ -5,45 +5,50 @@ import genDiff from '../index.js';
 const getFixturePath = (filename) => path.join('__fixtures__', filename);
 const readFile = (filename) => fs.readFile(getFixturePath(filename), 'utf-8');
 
-let expected;
-let expectedDeep;
+let expectedStylish;
+let expectedPlain;
+
 beforeEach(async () => {
-  expected = await readFile('/result.txt');
-  expectedDeep = await readFile('/result-deep.txt');
+  expectedStylish = await readFile('/stylish.txt');
+  expectedPlain = await readFile('/plain.txt');
 });
 
-test('Json Diff Test', async () => {
-  const path1 = await getFixturePath('/file1.json');
-  const path2 = await getFixturePath('/file2.json');
+describe('Test Diff with Json', () => {
+  let path1;
+  let path2;
 
-  const diff = await genDiff(path1, path2);
+  beforeEach(async () => {
+    path1 = await getFixturePath('/file1.json');
+    path2 = await getFixturePath('/file2.json');
+  });
 
-  expect(diff).toBe(expected);
+  test('Json Stylish Test', async () => {
+    const diff = await genDiff(path1, path2);
+    expect(diff).toBe(expectedStylish);
+  });
+
+  test('Json Plain Test', async () => {
+    const diff = await genDiff(path1, path2, 'plain');
+    expect(diff).toBe(expectedPlain);
+  });
 });
 
-test('Yml Diff Test', async () => {
-  const path1 = await getFixturePath('/file1.yml');
-  const path2 = await getFixturePath('/file2.yml');
+describe('Test Diff with Yml', () => {
+  let path1;
+  let path2;
 
-  const diff = await genDiff(path1, path2);
+  beforeEach(async () => {
+    path1 = await getFixturePath('/file1.yml');
+    path2 = await getFixturePath('/file2.yml');
+  });
 
-  expect(diff).toBe(expected);
-});
+  test('Yml Stylish Test', async () => {
+    const diff = await genDiff(path1, path2);
+    expect(diff).toBe(expectedStylish);
+  });
 
-test('Json Stylish Test', async () => {
-  const path1 = await getFixturePath('/file3.json');
-  const path2 = await getFixturePath('/file4.json');
-
-  const diff = await genDiff(path1, path2);
-
-  expect(diff).toBe(expectedDeep);
-});
-
-test('Yml Stylish Test', async () => {
-  const path1 = await getFixturePath('/file3.yml');
-  const path2 = await getFixturePath('/file4.yml');
-
-  const diff = await genDiff(path1, path2);
-
-  expect(diff).toBe(expectedDeep);
+  test('Yml Plain Test', async () => {
+    const diff = await genDiff(path1, path2, 'plain');
+    expect(diff).toBe(expectedPlain);
+  });
 });

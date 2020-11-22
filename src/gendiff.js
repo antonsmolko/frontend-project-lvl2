@@ -1,7 +1,7 @@
 import path from 'path';
 import fs from 'fs';
 import yaml from 'js-yaml';
-import stylish from './stylish.js';
+import formatters from './formatters/index.js';
 
 /**
  * Returns absolute file path
@@ -59,21 +59,17 @@ const getFileData = (filePath) => {
   }
 };
 
-const formatters = {
-  stylish,
-};
-
 /**
  * Returns template of compared result two object of data
  */
-export default async (filename1, filename2, formatter = 'stylish') => {
+export default async (filename1, filename2, formatName = 'stylish') => {
   const path1 = await getFullPath(filename1);
   const path2 = await getFullPath(filename2);
 
   const data1 = getFileData(path1);
   const data2 = getFileData(path2);
 
-  return formatter
-    ? formatters[formatter](data1, data2)
-    : stylish(data1, data2);
+  const formatter = formatters(formatName);
+
+  return formatter(data1, data2);
 };
