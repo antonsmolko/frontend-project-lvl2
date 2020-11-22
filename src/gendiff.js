@@ -65,6 +65,7 @@ const getFileData = (filePath) => {
 export default async (filename1, filename2, formatName = 'stylish') => {
   const path1 = await getFullPath(filename1);
   const path2 = await getFullPath(filename2);
+  console.log('path1 ', path1);
 
   const data1 = getFileData(path1);
   const data2 = getFileData(path2);
