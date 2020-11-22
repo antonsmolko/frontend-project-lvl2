@@ -5,7 +5,6 @@
   "bin": {
     "gendiff": "bin/gendiff.js"
   },
-  "main": "./index.js",
   "engines": {
     "node": ">=14"
   },
