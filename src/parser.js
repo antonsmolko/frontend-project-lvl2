@@ -12,7 +12,7 @@ const parse = (target, sources) => {
 
   const merged = { ...target, ...sources };
   const mergedKeys = Object.keys(merged);
-  const sortedKeys = [...mergedKeys].sort();
+  const sortedKeys = mergedKeys.sort((a, b) => a.localeCompare(b));
 
   return sortedKeys.reduce((acc, key) => {
     if (isObject(target[key]) && isObject(sources[key])) {
