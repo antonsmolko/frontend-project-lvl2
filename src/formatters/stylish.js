@@ -39,18 +39,16 @@ export default (data1, data2) => {
     const formattedData = data.reduce((acc, item) => {
       const sign = signMap[item.type];
 
-      let output = '';
-
       if (_.has(item, 'children')) {
-        output = formatString(item.key, iter(item.children, newOffset), sign, offset);
-      } else {
-        output = item.type === 'updating'
-          ? formatString(item.key, item.oldValue, signMap.missing, offset)
-          + formatString(item.key, item.value, signMap.adding, offset)
-          : formatString(item.key, item.value, sign, offset);
+        return acc + formatString(item.key, iter(item.children, newOffset), sign, offset);
       }
 
-      return acc + output;
+      if (item.type === 'updating') {
+        return acc + formatString(item.key, item.oldValue, signMap.missing, offset)
+        + formatString(item.key, item.value, signMap.adding, offset);
+      }
+
+      return acc + formatString(item.key, item.value, sign, offset);
     }, '');
 
     return `{${formattedData}\n${offset}}`;

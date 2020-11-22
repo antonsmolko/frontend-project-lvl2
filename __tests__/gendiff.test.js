@@ -15,26 +15,23 @@ beforeEach(async () => {
   jsonResult = await readFile('/json.txt');
 });
 
-const formats = ['json', 'yml'];
+describe
+  .each([['json'], ['yml']])('Test Diff with .%s format', (format) => {
+    const path1 = getFixturePath(`/file1.${format}`);
+    const path2 = getFixturePath(`/file2.${format}`);
 
-formats.forEach(async (format) => {
-  const path1 = await getFixturePath(`/file1.${format}`);
-  const path2 = await getFixturePath(`/file2.${format}`);
-
-  describe(`Test Diff with .${format} format`, () => {
-    test('Stylish Test', async () => {
-      const diff = await genDiff(path1, path2);
+    test('Stylish Test', () => {
+      const diff = genDiff(path1, path2);
       expect(diff).toBe(stylishResult);
     });
 
-    test('Plain Test', async () => {
-      const diff = await genDiff(path1, path2, 'plain');
+    test('Plain Test', () => {
+      const diff = genDiff(path1, path2, 'plain');
       expect(diff).toBe(plainResult);
     });
 
-    test('Json Test', async () => {
-      const diff = await genDiff(path1, path2, 'json');
+    test('Json Test', () => {
+      const diff = genDiff(path1, path2, 'json');
       expect(diff).toBe(jsonResult);
     });
   });
-});
