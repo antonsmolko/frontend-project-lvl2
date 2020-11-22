@@ -11,10 +11,9 @@ const parse = (target, sources) => {
   if (!sourcesKeys.length) return target;
 
   const merged = { ...target, ...sources };
-  const mergedKeys = Object.keys(merged);
-  const sortedKeys = mergedKeys.sort();
+  const mergedKeys = [...Object.keys(merged)].sort();
 
-  return sortedKeys.reduce((acc, key) => {
+  return mergedKeys.reduce((acc, key) => {
     if (isObject(target[key]) && isObject(sources[key])) {
       return [...acc, {
         type: 'equal',
