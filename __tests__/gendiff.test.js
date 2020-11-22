@@ -5,33 +5,28 @@ import genDiff from '../index.js';
 const getFixturePath = (filename) => path.join('__fixtures__', filename);
 const readFile = (filename) => fs.readFile(getFixturePath(filename), 'utf-8');
 
-let stylishResult;
-let plainResult;
-let jsonResult;
-
-beforeEach(async () => {
-  stylishResult = await readFile('/stylish.txt');
-  plainResult = await readFile('/plain.txt');
-  jsonResult = await readFile('/json.txt');
-});
+const formats = [['json'], ['yml']];
 
 describe
-  .each([['json'], ['yml']])('Test Diff with .%s format', (format) => {
+  .each(formats)('Test Diff with .%s format', (format) => {
     const path1 = getFixturePath(`/file1.${format}`);
     const path2 = getFixturePath(`/file2.${format}`);
 
-    test('Stylish Test', () => {
+    test('Stylish Test', async () => {
       const diff = genDiff(path1, path2);
+      const stylishResult = await readFile('/stylish.txt');
       expect(diff).toBe(stylishResult);
     });
 
-    test('Plain Test', () => {
+    test('Plain Test', async () => {
       const diff = genDiff(path1, path2, 'plain');
+      const plainResult = await readFile('/plain.txt');
       expect(diff).toBe(plainResult);
     });
 
-    test('Json Test', () => {
+    test('Json Test', async () => {
       const diff = genDiff(path1, path2, 'json');
+      const jsonResult = await readFile('/json.txt');
       expect(diff).toBe(jsonResult);
     });
   });
