@@ -40,17 +40,17 @@ export default (data1, data2) => {
         key,
         value,
         oldValue,
-        type,
+        state,
       } = item;
 
-      const sign = signMap[type];
+      const sign = signMap[state];
 
       let output = '';
 
-      if (type === 'object') {
+      if (state === 'object') {
         output = formatString(key, iter(value, newOffset), sign, offset);
       } else {
-        output = type === 'updating'
+        output = state === 'updating'
           ? formatString(key, oldValue, signMap.missing, offset)
           + formatString(key, value, signMap.adding, offset)
           : formatString(key, value, sign, offset);

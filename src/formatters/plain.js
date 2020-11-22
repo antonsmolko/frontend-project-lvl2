@@ -25,13 +25,13 @@ const postfix = {
 };
 
 const getFormatRow = (path, item) => (
-  `Property '${getFormatPath(path)}' ${postfix[item.type](item)}`
+  `Property '${getFormatPath(path)}' ${postfix[item.state](item)}`
 );
 
 function generateRow(path, item) {
-  const { type, key, value } = item;
+  const { state, key, value } = item;
 
-  return type === 'object'
+  return state === 'object'
     ? generateRowsFromObject(value, [...path, key], generateRow)
     : getFormatRow(path, item);
 }
@@ -41,11 +41,11 @@ export default (data1, data2) => {
 
   const iter = (data, path = []) => data
     .reduce((acc, item) => {
-      if (item.type === 'object') {
+      if (item.state === 'object') {
         return [...acc, iter(item.value, [...path, item.key])];
       }
 
-      if (item.type !== 'equal') {
+      if (item.state !== 'equal') {
         return [...acc, generateRow([...path, item.key], item)];
       }
 
