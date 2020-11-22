@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import { isObject } from './helpers.js';
 
+const getSorted = (items) => [...items].sort();
 /**
  * Deep merge two objects.
  * @param target
@@ -12,15 +13,15 @@ const parse = (target, sources) => {
 
   const merged = { ...target, ...sources };
   const mergedKeys = Object.keys(merged);
-  const sortedKeys = mergedKeys.sort((a, b) => a.localeCompare(b));
+  const sortedKeys = getSorted(mergedKeys);
 
   return sortedKeys.reduce((acc, key) => {
     if (isObject(target[key]) && isObject(sources[key])) {
-      return [...acc, {
+      return _.orderBy([...acc, {
         type: 'equal',
         key,
         children: parse(target[key], sources[key]),
-      }];
+      }], 'key');
     }
 
     if (_.isEqual(target[key], sources[key])) {
