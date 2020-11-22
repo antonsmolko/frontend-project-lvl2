@@ -7,7 +7,7 @@
 
 # Differense Calculator
 
-> Gendiff command is for calculating and dispalying differences in two .json files.
+> Gendiff command is for calculating and dispalying differences in two .json or .yml files
 
 ## Getting started
 

@@ -7,6 +7,8 @@ const readFile = (filename) => fs.readFile(getFixturePath(filename), 'utf-8');
 
 let expectedStylish;
 let expectedPlain;
+let path1;
+let path2;
 
 beforeEach(async () => {
   expectedStylish = await readFile('/stylish.txt');
@@ -14,9 +16,6 @@ beforeEach(async () => {
 });
 
 describe('Test Diff with Json', () => {
-  let path1;
-  let path2;
-
   beforeEach(async () => {
     path1 = await getFixturePath('/file1.json');
     path2 = await getFixturePath('/file2.json');
@@ -34,9 +33,6 @@ describe('Test Diff with Json', () => {
 });
 
 describe('Test Diff with Yml', () => {
-  let path1;
-  let path2;
-
   beforeEach(async () => {
     path1 = await getFixturePath('/file1.yml');
     path2 = await getFixturePath('/file2.yml');
