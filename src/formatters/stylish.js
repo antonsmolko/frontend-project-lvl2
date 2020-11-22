@@ -56,5 +56,7 @@ export default (data1, data2) => {
     return `{${formattedData}\n${offset}}`;
   };
 
+  console.log(iter(parsedData));
+
   return iter(parsedData);
 };
