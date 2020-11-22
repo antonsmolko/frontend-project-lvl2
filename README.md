@@ -1,8 +1,6 @@
 ### Hexlet tests and linter status:
 ![Actions Status](https://github.com/antonsmolko/frontend-project-lvl2/workflows/hexlet-check/badge.svg)
-
 [![Maintainability](https://api.codeclimate.com/v1/badges/791ad1d4d9bd27f68d5c/maintainability)](https://codeclimate.com/github/antonsmolko/frontend-project-lvl2/maintainability)
-
 [![Test Coverage](https://api.codeclimate.com/v1/badges/791ad1d4d9bd27f68d5c/test_coverage)](https://codeclimate.com/github/antonsmolko/frontend-project-lvl2/test_coverage)
 
 # Differense Calculator
