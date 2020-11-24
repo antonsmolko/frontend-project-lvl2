@@ -11,10 +11,9 @@ const resultMap = {
   json: readFile('resultJson.txt'),
 };
 
-const formatters = ['stylish', 'plain', 'json'];
 const formats = ['json', 'yml'];
 
-const matrix = formatters.reduce((acc, formatter) => (
+const matrix = Object.keys(resultMap).reduce((acc, formatter) => (
   [...acc, ...formats.map((format) => [formatter, format])]
 ), []);
 
