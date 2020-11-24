@@ -5,13 +5,11 @@ import genDiff from '../index.js';
 const getFixturePath = (filename) => path.join('__fixtures__', filename);
 const readFile = (filename) => fs.readFileSync(getFixturePath(filename), 'utf-8');
 
-const resultMap = {};
-
-beforeAll(() => {
-  resultMap.stylish = readFile('resultStylish.txt');
-  resultMap.plain = readFile('resultPlain.txt');
-  resultMap.json = readFile('resultJson.txt');
-});
+const resultMap = {
+  stylish: readFile('resultStylish.txt'),
+  plain: readFile('resultPlain.txt'),
+  json: readFile('resultJson.txt'),
+};
 
 const formatters = ['stylish', 'plain', 'json'];
 const formats = ['json', 'yml'];
