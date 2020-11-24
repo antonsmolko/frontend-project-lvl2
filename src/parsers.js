@@ -1,108 +1,55 @@
-import fs from 'fs';
-import path from 'path';
-import yaml from 'js-yaml';
 import _ from 'lodash';
 import { isObject } from './helpers.js';
 
 /**
- * Returns file data from json stringifying format
+ * Parsed two objects.
  *
- * @param {string} filePath
+ * @param {object} target
+ * @param {object} sources
+ * @return {array} parsed data
  */
-const getJsonFileData = (filePath) => {
-  const info = fs.readFileSync(filePath, 'utf-8');
+const parse = (target, sources) => {
+  const sourcesKeys = Object.keys(sources);
+  if (!sourcesKeys.length) return target;
 
-  return JSON.parse(info);
-};
+  const merged = { ...target, ...sources };
 
-/**
- * Returns file data from yml format
- *
- * @param {string} filePath
- */
-const getYmlFileData = (filePath) => (
-  yaml.safeLoad(fs.readFileSync(filePath, 'utf8'))
-);
+  const parsed = Object
+    .keys(merged)
+    .reduce((acc, key) => {
+      if (isObject(target[key]) && isObject(sources[key])) {
+        return [...acc, {
+          type: 'equal',
+          key,
+          children: parse(target[key], sources[key]),
+        }];
+      }
 
-/**
- * @constant {object} fileDataMap
- */
-const fileDataMap = {
-  json: (filePath) => getJsonFileData(filePath),
-  yml: (filePath) => getYmlFileData(filePath),
-};
+      if (_.isEqual(target[key], sources[key])) {
+        return [...acc, { type: 'equal', key, value: target[key] }];
+      }
 
-/**
- * Returns file data
- *
- * @param {string} filePath
- * @return {object}
- */
-const getFileData = (filePath) => {
-  try {
-    const ext = path.extname(filePath).substr(1);
+      if (_.has(target, key) && _.has(sources, key)) {
+        return [...acc, {
+          type: 'updating',
+          key,
+          oldValue: target[key],
+          value: sources[key],
+        }];
+      }
 
-    return fileDataMap[ext](filePath);
-  } catch (e) {
-    console.log(`File '${filePath}' not found!`);
-    throw new Error(e);
-  }
-};
+      if (_.has(target, key)) {
+        return [...acc, { type: 'missing', key, value: target[key] }];
+      }
 
-/**
- * Deep merge two objects.
- * @param firstData
- * @param ...secondData
- */
-const parse = (path1, path2) => {
-  const firstFileData = getFileData(path1);
-  const secondFileData = getFileData(path2);
+      if (_.has(sources, key)) {
+        return [...acc, { type: 'adding', key, value: sources[key] }];
+      }
 
-  const parseProcess = (firstData, secondData) => {
-    const secondDataKeys = Object.keys(secondData);
-    if (!secondDataKeys.length) return firstData;
+      return acc;
+    }, []);
 
-    const merged = { ...firstData, ...secondData };
-
-    const parsed = Object
-      .keys(merged)
-      .reduce((acc, key) => {
-        if (isObject(firstData[key]) && isObject(secondData[key])) {
-          return [...acc, {
-            type: 'equal',
-            key,
-            children: parseProcess(firstData[key], secondData[key]),
-          }];
-        }
-
-        if (_.isEqual(firstData[key], secondData[key])) {
-          return [...acc, { type: 'equal', key, value: firstData[key] }];
-        }
-
-        if (_.has(firstData, key) && _.has(secondData, key)) {
-          return [...acc, {
-            type: 'updating',
-            key,
-            oldValue: firstData[key],
-            value: secondData[key],
-          }];
-        }
-
-        if (_.has(firstData, key)) {
-          return [...acc, { type: 'missing', key, value: firstData[key] }];
-        }
-
-        if (_.has(secondData, key)) {
-          return [...acc, { type: 'adding', key, value: secondData[key] }];
-        }
-
-        return acc;
-      }, []);
-
-    return _.sortBy(parsed, 'key');
-  };
-
-  return parseProcess(firstFileData, secondFileData);
+  return _.sortBy(parsed, 'key');
 };
 
 export default parse;
