@@ -1,5 +1,4 @@
 import _ from 'lodash';
-import parse from '../parser.js';
 
 const getFormatValue = (value) => {
   if (_.isObject(value)) return '[complex value]';
@@ -34,9 +33,7 @@ const generateRow = (path, item) => (
     : getFormatRow(path, item)
 );
 
-export default (data1, data2) => {
-  const parsedData = parse(data1, data2);
-
+export default (parsedData) => {
   const iter = (data, path = []) => data
     .reduce((acc, item) => {
       if (_.has(item, 'children')) {

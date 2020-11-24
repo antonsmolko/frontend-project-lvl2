@@ -1,5 +1,4 @@
 import _ from 'lodash';
-import parse from '../parser.js';
 import { isObject } from '../helpers.js';
 
 const tab = '    ';
@@ -31,9 +30,7 @@ const signMap = {
   adding: '  + ',
 };
 
-export default (data1, data2) => {
-  const parsedData = parse(data1, data2);
-
+export default (parsedData) => {
   const iter = (data, offset = '') => {
     const newOffset = offset + tab;
     const formattedData = data.reduce((acc, item) => {
