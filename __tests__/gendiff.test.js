@@ -11,7 +11,7 @@ const readFile = (filename) => fs.readFileSync(getFixturePath(filename), 'utf-8'
 
 const stylishResult = readFile('result_stylish.txt');
 const plainResult = readFile('result_plain.txt');
-const jsonResult = readFile('result_json.txt');
+const jsonResult = readFile('result_json.json');
 
 const formats = [
   ['json'],
