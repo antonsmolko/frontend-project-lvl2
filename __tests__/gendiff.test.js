@@ -1,14 +1,18 @@
+import { fileURLToPath } from 'url';
 import path from 'path';
 import fs from 'fs';
 import genDiff from '../index.js';
 
-const getFixturePath = (filename) => path.join('__fixtures__', filename);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const getFixturePath = (filename) => path.join(__dirname, '..', '__fixtures__', filename);
 const readFile = (filename) => fs.readFileSync(getFixturePath(filename), 'utf-8');
 
 const resultMap = {
-  stylish: readFile('resultStylish.txt'),
-  plain: readFile('resultPlain.txt'),
-  json: readFile('resultJson.txt'),
+  stylish: readFile('result_stylish.txt'),
+  plain: readFile('result_plain.txt'),
+  json: readFile('result_json.txt'),
 };
 
 const formats = ['json', 'yml'];
