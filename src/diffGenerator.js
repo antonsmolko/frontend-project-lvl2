@@ -1,27 +1,20 @@
 import _ from 'lodash';
 import { isObject } from './helpers.js';
 
-/**
- * Parsed two objects.
- *
- * @param {object} target
- * @param {object} sources
- * @return {array} parsed data
- */
-const parse = (target, sources) => {
+const generate = (target, sources) => {
   const sourcesKeys = Object.keys(sources);
   if (!sourcesKeys.length) return target;
 
   const merged = { ...target, ...sources };
 
-  const parsed = Object
+  const generated = Object
     .keys(merged)
     .reduce((acc, key) => {
       if (isObject(target[key]) && isObject(sources[key])) {
         return [...acc, {
           type: 'equal',
           key,
-          children: parse(target[key], sources[key]),
+          children: generate(target[key], sources[key]),
         }];
       }
 
@@ -49,7 +42,7 @@ const parse = (target, sources) => {
       return acc;
     }, []);
 
-  return _.sortBy(parsed, 'key');
+  return _.sortBy(generated, 'key');
 };
 
-export default parse;
+export default generate;
