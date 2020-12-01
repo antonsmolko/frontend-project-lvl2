@@ -1,20 +1,20 @@
 import _ from 'lodash';
 import { isObject } from './helpers.js';
 
-const generate = (target, sources) => {
+const generateDiffAst = (target, sources) => {
   const sourcesKeys = Object.keys(sources);
   if (!sourcesKeys.length) return target;
 
   const merged = { ...target, ...sources };
 
-  const generated = Object
+  const diffAst = Object
     .keys(merged)
     .reduce((acc, key) => {
       if (isObject(target[key]) && isObject(sources[key])) {
         return [...acc, {
           type: 'equal',
           key,
-          children: generate(target[key], sources[key]),
+          children: generateDiffAst(target[key], sources[key]),
         }];
       }
 
@@ -42,7 +42,7 @@ const generate = (target, sources) => {
       return acc;
     }, []);
 
-  return _.sortBy(generated, 'key');
+  return _.sortBy(diffAst, 'key');
 };
 
-export default generate;
+export default generateDiffAst;

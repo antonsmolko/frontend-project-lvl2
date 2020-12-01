@@ -14,8 +14,8 @@ const plainResult = readFile('result_plain.txt');
 const jsonResult = readFile('result_json.json');
 
 const formats = [
-  ['json'],
-  ['yml'],
+  'json',
+  'yml',
 ];
 
 test
