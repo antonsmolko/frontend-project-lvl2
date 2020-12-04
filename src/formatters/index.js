@@ -9,10 +9,12 @@ const formatters = {
   json,
 };
 
-export default (name) => {
+export default (tree, name) => {
   if (!_.has(formatters, name)) {
     throw new Error(`Unknown formatter by name: '${name}'!`);
   }
 
-  return formatters[name];
+  const formatTree = formatters[name];
+
+  return formatTree(tree);
 };

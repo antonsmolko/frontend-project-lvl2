@@ -10,19 +10,21 @@ const generateDiffAst = (target, sources) => {
   const diffAst = Object
     .keys(merged)
     .reduce((acc, key) => {
-      if (isObject(target[key]) && isObject(sources[key])) {
-        return [...acc, {
-          type: 'equal',
-          key,
-          children: generateDiffAst(target[key], sources[key]),
-        }];
-      }
-
-      if (_.isEqual(target[key], sources[key])) {
-        return [...acc, { type: 'equal', key, value: target[key] }];
-      }
 
       if (_.has(target, key) && _.has(sources, key)) {
+
+        if (isObject(target[key]) && isObject(sources[key])) {
+          return [...acc, {
+            type: 'equal',
+            key,
+            children: generateDiffAst(target[key], sources[key]),
+          }];
+        }
+
+        if (_.isEqual(target[key], sources[key])) {
+          return [...acc, { type: 'equal', key, value: target[key] }];
+        }
+
         return [...acc, {
           type: 'updating',
           key,
