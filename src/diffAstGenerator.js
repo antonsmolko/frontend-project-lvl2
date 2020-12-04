@@ -10,9 +10,7 @@ const generateDiffAst = (target, sources) => {
   const diffAst = Object
     .keys(merged)
     .reduce((acc, key) => {
-
       if (_.has(target, key) && _.has(sources, key)) {
-
         if (isObject(target[key]) && isObject(sources[key])) {
           return [...acc, {
             type: 'equal',
