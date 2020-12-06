@@ -26,9 +26,9 @@ const generateDiffTree = (target, sources) => {
         };
       }
 
-      if (hasValTarget) return { type: 'missed', key, value: targetVal };
-
-      return { type: 'added', key, value: sourcesVal };
+      return hasValTarget
+        ? { type: 'missed', key, value: targetVal }
+        : { type: 'added', key, value: sourcesVal };
     });
 
   return _.sortBy(diffTree, 'key');
