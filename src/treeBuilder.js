@@ -19,11 +19,11 @@ const generateDiffTree = (target, sources) => {
           };
         }
 
-        return _.isEqual(targetVal, sourcesVal)
-          ? { type: 'equal', key, value: targetVal }
-          : {
-            type: 'updated', key, oldValue: targetVal, value: sourcesVal,
-          };
+        if (_.isEqual(targetVal, sourcesVal)) return { type: 'equal', key, value: targetVal };
+
+        return {
+          type: 'updated', key, oldValue: targetVal, value: sourcesVal,
+        };
       }
 
       return hasValTarget
