@@ -1,17 +1,12 @@
 import _ from 'lodash';
-import { isObject } from './helpers.js';
 
 const generateDiffAst = (target, sources) => {
-  const sourcesKeys = Object.keys(sources);
-  if (!sourcesKeys.length) return target;
+  const keys = _.union(_.keys(target), _.keys(sources)).sort();
 
-  const merged = { ...target, ...sources };
-
-  const diffAst = Object
-    .keys(merged)
+  const diffAst = keys
     .reduce((acc, key) => {
       if (_.has(target, key) && _.has(sources, key)) {
-        if (isObject(target[key]) && isObject(sources[key])) {
+        if (_.isPlainObject(target[key]) && _.isPlainObject(sources[key])) {
           return [...acc, {
             type: 'equal',
             key,
@@ -42,7 +37,7 @@ const generateDiffAst = (target, sources) => {
       return acc;
     }, []);
 
-  return _.sortBy(diffAst, 'key');
+  return diffAst;
 };
 
 export default generateDiffAst;

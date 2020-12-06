@@ -1,5 +1,4 @@
 import _ from 'lodash';
-import { isObject } from '../helpers.js';
 
 const tab = '    ';
 
@@ -7,7 +6,7 @@ const formatObjectValue = (obj, offset, fn) => {
   const inner = Object
     .keys(obj)
     .reduce((acc, key) => {
-      const output = isObject(obj[key])
+      const output = _.isPlainObject(obj[key])
         ? fn(key, formatObjectValue(obj[key], offset + tab, fn), tab, offset)
         : fn(key, obj[key], tab, offset);
       return acc + output;
@@ -17,7 +16,7 @@ const formatObjectValue = (obj, offset, fn) => {
 };
 
 const formatString = (key, value, sign, offset) => (
-  isObject(value)
+  _.isPlainObject(value)
     ? `\n${offset}${sign}${key}: ${formatObjectValue(value, offset + tab, formatString)}`
     : `\n${offset}${sign}${key}: ${value}`
 );
