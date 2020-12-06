@@ -1,9 +1,9 @@
 import _ from 'lodash';
 
-const generateDiffAst = (target, sources) => {
+const generateDiffTree = (target, sources) => {
   const keys = _.union(_.keys(target), _.keys(sources));
 
-  const diffAst = keys
+  const diffTree = keys
     .map((key) => {
       const hasValTarget = _.has(target, key);
       const hasValSources = _.has(sources, key);
@@ -15,7 +15,7 @@ const generateDiffAst = (target, sources) => {
           return {
             type: 'equal',
             key,
-            children: generateDiffAst(targetVal, sourcesVal),
+            children: generateDiffTree(targetVal, sourcesVal),
           };
         }
 
@@ -42,7 +42,7 @@ const generateDiffAst = (target, sources) => {
       return { type: 'added', key, value: sourcesVal };
     });
 
-  return _.sortBy(diffAst, 'key');
+  return _.sortBy(diffTree, 'key');
 };
 
-export default generateDiffAst;
+export default generateDiffTree;
