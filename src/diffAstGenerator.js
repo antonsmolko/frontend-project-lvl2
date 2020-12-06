@@ -1,43 +1,48 @@
 import _ from 'lodash';
 
 const generateDiffAst = (target, sources) => {
-  const keys = _.union(_.keys(target), _.keys(sources)).sort();
+  const keys = _.union(_.keys(target), _.keys(sources));
 
   const diffAst = keys
-    .reduce((acc, key) => {
-      if (_.has(target, key) && _.has(sources, key)) {
-        if (_.isPlainObject(target[key]) && _.isPlainObject(sources[key])) {
-          return [...acc, {
+    .map((key) => {
+      const hasValTarget = _.has(target, key);
+      const hasValSources = _.has(sources, key);
+      const targetVal = target[key];
+      const sourcesVal = sources[key];
+
+      if (hasValTarget && hasValSources) {
+        if (_.isPlainObject(targetVal) && _.isPlainObject(sourcesVal)) {
+          return {
             type: 'equal',
             key,
-            children: generateDiffAst(target[key], sources[key]),
-          }];
+            children: generateDiffAst(targetVal, sourcesVal),
+          };
         }
 
-        if (_.isEqual(target[key], sources[key])) {
-          return [...acc, { type: 'equal', key, value: target[key] }];
+        if (_.isEqual(targetVal, sourcesVal)) {
+          return {
+            type: 'equal',
+            key,
+            value: targetVal,
+          };
         }
 
-        return [...acc, {
-          type: 'updating',
+        return {
+          type: 'updated',
           key,
-          oldValue: target[key],
-          value: sources[key],
-        }];
+          oldValue: targetVal,
+          value: sourcesVal,
+        };
       }
 
-      if (_.has(target, key)) {
-        return [...acc, { type: 'missing', key, value: target[key] }];
+      if (hasValTarget) {
+        return { type: 'missed', key, value: targetVal };
       }
 
-      if (_.has(sources, key)) {
-        return [...acc, { type: 'adding', key, value: sources[key] }];
-      }
+      return { type: 'added', key, value: sourcesVal };
+    });
 
-      return acc;
-    }, []);
-
-  return diffAst;
+  return _.sortBy(diffAst, 'key');
 };
 
 export default generateDiffAst;

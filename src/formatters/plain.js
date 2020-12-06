@@ -16,9 +16,9 @@ const generateRowsFromChildren = (obj, path, fn) => Object
   .join('\n');
 
 const postfix = {
-  adding: ({ value }) => `was added with value: ${getFormatValue(value)}`,
-  missing: () => 'was removed',
-  updating: ({ value, oldValue }) => (
+  added: ({ value }) => `was added with value: ${getFormatValue(value)}`,
+  missed: () => 'was removed',
+  updated: ({ value, oldValue }) => (
     `was updated. From ${getFormatValue(oldValue)} to ${getFormatValue(value)}`
   ),
 };
