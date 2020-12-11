@@ -24,7 +24,7 @@ const formatString = (key, value, sign, offset) => (
 const signMap = {
   equal: tab,
   updated: '  - ',
-  missed: '  - ',
+  removed: '  - ',
   added: '  + ',
 };
 
@@ -39,7 +39,7 @@ export default (parsedData) => {
       }
 
       if (item.type === 'updated') {
-        return acc + formatString(item.key, item.oldValue, signMap.missed, offset)
+        return acc + formatString(item.key, item.oldValue, signMap.removed, offset)
         + formatString(item.key, item.value, signMap.added, offset);
       }
 

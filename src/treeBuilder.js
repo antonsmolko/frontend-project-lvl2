@@ -1,37 +1,36 @@
 import _ from 'lodash';
 
-const generateDiffTree = (target, sources) => {
-  const keys = _.union(_.keys(target), _.keys(sources));
+const generateDiffTree = (firstData, secondData) => {
+  const keys = _.union(_.keys(firstData), _.keys(secondData));
+  const sortedKeys = _.sortBy(keys);
 
-  const diffTree = keys
+  const diffTree = sortedKeys
     .map((key) => {
-      const hasValTarget = _.has(target, key);
-      const hasValSources = _.has(sources, key);
-      const targetVal = target[key];
-      const sourcesVal = sources[key];
+      const firstDataVal = firstData[key];
+      const secondDataVal = secondData[key];
 
-      if (hasValTarget && hasValSources) {
-        if (_.isPlainObject(targetVal) && _.isPlainObject(sourcesVal)) {
+      if (!_.has(firstData, key)) return { type: 'added', key, value: secondDataVal };
+
+      if (_.has(firstData, key) && _.has(secondData, key)) {
+        if (_.isPlainObject(firstDataVal) && _.isPlainObject(secondDataVal)) {
           return {
             type: 'equal',
             key,
-            children: generateDiffTree(targetVal, sourcesVal),
+            children: generateDiffTree(firstDataVal, secondDataVal),
           };
         }
 
-        if (_.isEqual(targetVal, sourcesVal)) return { type: 'equal', key, value: targetVal };
+        if (_.isEqual(firstDataVal, secondDataVal)) return { type: 'equal', key, value: firstDataVal };
 
         return {
-          type: 'updated', key, oldValue: targetVal, value: sourcesVal,
+          type: 'updated', key, oldValue: firstDataVal, value: secondDataVal,
         };
       }
 
-      return hasValTarget
-        ? { type: 'missed', key, value: targetVal }
-        : { type: 'added', key, value: sourcesVal };
+      return { type: 'removed', key, value: firstDataVal };
     });
 
-  return _.sortBy(diffTree, 'key');
+  return diffTree;
 };
 
 export default generateDiffTree;
