@@ -11,7 +11,7 @@ const generateDiffTree = (firstData, secondData) => {
 
       if (!_.has(firstData, key)) return { type: 'added', key, value: secondDataVal };
 
-      if (_.has(firstData, key) && _.has(secondData, key)) {
+      if (_.has(secondData, key)) {
         if (_.isPlainObject(firstDataVal) && _.isPlainObject(secondDataVal)) {
           return {
             type: 'equal',
