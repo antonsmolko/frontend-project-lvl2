@@ -51,13 +51,20 @@ const mapChildren = (children, depth, iter) => (
 
 export default (tree) => {
   const iter = (obj, depth = 0) => {
-    const keyString = getFormattedIndentWithKey(obj.key, obj.type, depth);
+    const getKeyString = (type) => (
+      getFormattedIndentWithKey(obj.key, type, depth)
+    );
+
+    if (obj.type === 'changed') {
+      return `${getKeyString('removed')}${formatValue(obj.oldValue, depth + 1)}\n`
+        + `${getKeyString('added')}${formatValue(obj.value, depth + 1)}\n`;
+    }
 
     const inner = _.has(obj, 'children')
-      ? `${keyString}{\n${mapChildren(obj.children, depth + 1, iter)}${getIndent(depth)}}`
-      : `${keyString}${formatValue(obj.value, depth + 1)}`;
+      ? `${getKeyString(obj.type)}{\n${mapChildren(obj.children, depth + 1, iter)}${getIndent(depth)}}`
+      : `${getKeyString(obj.type)}${formatValue(obj.value, depth + 1)}`;
 
-    return `${inner}\n`;
+    return depth > 0 ? `${inner}\n` : inner;
   };
 
   return iter(tree);

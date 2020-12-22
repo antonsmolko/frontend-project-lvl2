@@ -26,8 +26,12 @@ const generateTreeChildren = (data1, data2) => {
     }
 
     return [
-      { type: 'removed', key, value: data1[key] },
-      { type: 'added', key, value: data2[key] },
+      {
+        type: 'changed',
+        key,
+        oldValue: data1[key],
+        value: data2[key],
+      },
     ];
   });
 
