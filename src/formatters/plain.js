@@ -2,25 +2,22 @@ import _ from 'lodash';
 
 const getFormatValue = (value) => {
   if (_.isObject(value)) return '[complex value]';
-
   if (_.isString(value)) return `'${value}'`;
 
   return value;
 };
 
-const getFormatPath = (path) => path.join('.');
+const getFormatPath = (path) => _.compact(path).join('.');
 
-const generateRowsFromChildren = (obj, path, fn) => Object
-  .keys(obj)
-  .reduce((acc, key) => [...acc, fn([...path, key], obj[key])], '')
-  .join('\n');
+const generateRowsFromChildren = (children, path, generateRow) => (
+  children
+    .reduce((acc, obj) => [...acc, generateRow([...path, obj.key], obj.key)], '')
+    .join('\n')
+);
 
 const postfix = {
   added: ({ value }) => `was added with value: ${getFormatValue(value)}`,
   removed: () => 'was removed',
-  updated: ({ value, oldValue }) => (
-    `was updated. From ${getFormatValue(oldValue)} to ${getFormatValue(value)}`
-  ),
 };
 
 const getFormatRow = (path, item) => (
@@ -29,24 +26,24 @@ const getFormatRow = (path, item) => (
 
 const generateRow = (path, item) => (
   _.has(item, 'children')
-    ? generateRowsFromChildren(item.children, [...path, item.key], generateRow)
+    ? generateRowsFromChildren(item.children, path, generateRow)
     : getFormatRow(path, item)
 );
 
-export default (parsedData) => {
-  const iter = (data, path = []) => data
-    .reduce((acc, item) => {
-      if (_.has(item, 'children')) {
-        return [...acc, iter(item.children, [...path, item.key])];
-      }
+export default (tree) => {
+  const iter = (obj, path = [], carry = []) => {
+    if (_.has(obj, 'children')) {
+      return [...carry, obj.children
+        .reduce((acc, item) => [...acc, ...iter(item, [...path, obj.key])], [])
+        .join('\n')];
+    }
 
-      if (item.type !== 'equal') {
-        return [...acc, generateRow([...path, item.key], item)];
-      }
+    if (obj.type !== 'unchanged') {
+      return [...carry, generateRow([...path, obj.key], obj)];
+    }
 
-      return acc;
-    }, [])
-    .join('\n');
+    return carry;
+  };
 
-  return iter(parsedData);
+  return iter(tree).join('\n');
 };

@@ -1,36 +1,41 @@
 import _ from 'lodash';
 
-const generateDiffTree = (firstData, secondData) => {
-  const keys = _.union(_.keys(firstData), _.keys(secondData));
+const generateTreeChildren = (data1, data2) => {
+  const keys = _.union(_.keys(data1), _.keys(data2));
   const sortedKeys = _.sortBy(keys);
 
-  const diffTree = sortedKeys
-    .map((key) => {
-      const firstDataVal = firstData[key];
-      const secondDataVal = secondData[key];
+  const diffTree = sortedKeys.flatMap((key) => {
+    if (!_.has(data1, key)) {
+      return { type: 'added', key, value: data2[key] };
+    }
 
-      if (!_.has(firstData, key)) return { type: 'added', key, value: secondDataVal };
+    if (!_.has(data2, key)) {
+      return { type: 'removed', key, value: data1[key] };
+    }
 
-      if (_.has(secondData, key)) {
-        if (_.isPlainObject(firstDataVal) && _.isPlainObject(secondDataVal)) {
-          return {
-            type: 'equal',
-            key,
-            children: generateDiffTree(firstDataVal, secondDataVal),
-          };
-        }
+    if (_.isPlainObject(data1[key]) && _.isPlainObject(data2[key])) {
+      return {
+        type: 'unchanged',
+        key,
+        children: generateTreeChildren(data1[key], data2[key]),
+      };
+    }
 
-        if (_.isEqual(firstDataVal, secondDataVal)) return { type: 'equal', key, value: firstDataVal };
+    if (_.isEqual(data1[key], data2[key])) {
+      return { type: 'unchanged', key, value: data1[key] };
+    }
 
-        return {
-          type: 'updated', key, oldValue: firstDataVal, value: secondDataVal,
-        };
-      }
-
-      return { type: 'removed', key, value: firstDataVal };
-    });
+    return [
+      { type: 'removed', key, value: data1[key] },
+      { type: 'added', key, value: data2[key] },
+    ];
+  });
 
   return diffTree;
 };
 
-export default generateDiffTree;
+export default (data1, data2) => ({
+  key: null,
+  type: 'tree',
+  children: generateTreeChildren(data1, data2),
+});

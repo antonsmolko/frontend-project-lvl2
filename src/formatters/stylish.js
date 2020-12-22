@@ -1,53 +1,64 @@
 import _ from 'lodash';
 
-const tab = '    ';
+const baseIndent = '  ';
+const doubleIndent = _.repeat(baseIndent, 2);
+const getIndent = (depth) => _.repeat(doubleIndent, depth);
 
-const formatObjectValue = (obj, offset, fn) => {
-  const inner = Object
-    .keys(obj)
-    .reduce((acc, key) => {
-      const output = _.isPlainObject(obj[key])
-        ? fn(key, formatObjectValue(obj[key], offset + tab, fn), tab, offset)
-        : fn(key, obj[key], tab, offset);
-      return acc + output;
-    }, '');
-
-  return `{${inner}\n${offset}}`;
+const getSignIndent = (type) => {
+  switch (type) {
+    case 'unchanged':
+      return doubleIndent;
+    case 'removed':
+      return `${baseIndent}- `;
+    case 'added':
+      return `${baseIndent}+ `;
+    default:
+      return '';
+  }
 };
 
-const formatString = (key, value, sign, offset) => (
-  _.isPlainObject(value)
-    ? `\n${offset}${sign}${key}: ${formatObjectValue(value, offset + tab, formatString)}`
-    : `\n${offset}${sign}${key}: ${value}`
+const getFullIndent = (depth, type = null) => getIndent(depth - 1) + getSignIndent(type);
+const formatKey = (key) => (key ? `${key}: ` : '');
+const getFormattedIndentWithKey = (key, depth, type = null) => (
+  getFullIndent(type, depth) + formatKey(key)
 );
 
-const signMap = {
-  equal: tab,
-  updated: '  - ',
-  removed: '  - ',
-  added: '  + ',
+const formatKeyValue = (key, value) => `${key}: ${value}`;
+
+const formatObjectValue = (obj, depth, format) => {
+  const inner = Object.keys(obj)
+    .map((key) => (
+      _.isPlainObject(obj[key])
+        ? formatKeyValue(key, formatObjectValue(obj[key], depth + 1, format))
+        : formatKeyValue(key, format(obj[key], depth))
+    ))
+    .join(`\n${getIndent(depth)}`);
+
+  return `{\n${getIndent(depth)}${inner}\n${getIndent(depth - 1)}}`;
 };
 
-export default (parsedData) => {
-  const iter = (data, offset = '') => {
-    const newOffset = offset + tab;
-    const formattedData = data.reduce((acc, item) => {
-      const sign = signMap[item.type];
+const formatValue = (value, depth) => (
+  _.isPlainObject(value)
+    ? formatObjectValue(value, depth, formatValue)
+    : value
+);
 
-      if (_.has(item, 'children')) {
-        return acc + formatString(item.key, iter(item.children, newOffset), sign, offset);
-      }
+const mapChildren = (children, depth, iter) => (
+  children
+    .map((obj) => iter(obj, depth))
+    .join('')
+);
 
-      if (item.type === 'updated') {
-        return acc + formatString(item.key, item.oldValue, signMap.removed, offset)
-        + formatString(item.key, item.value, signMap.added, offset);
-      }
+export default (tree) => {
+  const iter = (obj, depth = 0) => {
+    const keyString = getFormattedIndentWithKey(obj.key, obj.type, depth);
 
-      return acc + formatString(item.key, item.value, sign, offset);
-    }, '');
+    const inner = _.has(obj, 'children')
+      ? `${keyString}{\n${mapChildren(obj.children, depth + 1, iter)}${getIndent(depth)}}`
+      : `${keyString}${formatValue(obj.value, depth + 1)}`;
 
-    return `{${formattedData}\n${offset}}`;
+    return `${inner}\n`;
   };
 
-  return iter(parsedData);
+  return iter(tree);
 };

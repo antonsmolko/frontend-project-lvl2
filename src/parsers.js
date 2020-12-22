@@ -5,8 +5,4 @@ const parsers = {
   json: JSON.parse,
 };
 
-export default (data, extension) => {
-  const parse = parsers[extension];
-
-  return parse(data);
-};
+export default (data, format) => parsers[format](data);
