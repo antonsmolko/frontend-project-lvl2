@@ -12,7 +12,6 @@ export default (tree, formatter) => {
   if (!_.has(formatters, formatter)) {
     throw new Error(`Unknown formatter: '${formatter}'!`);
   }
-
   const formatTree = formatters[formatter];
 
   return formatTree(tree);
