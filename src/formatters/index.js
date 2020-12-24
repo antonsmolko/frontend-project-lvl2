@@ -1,20 +1,19 @@
 import _ from 'lodash';
 import stylish from './stylish.js';
 import plain from './plain.js';
-import json from './json.js';
 
 const formatters = {
   stylish,
   plain,
-  json,
+  json: (tree) => JSON.stringify(tree),
 };
 
-export default (tree, name) => {
-  if (!_.has(formatters, name)) {
-    throw new Error(`Unknown formatter by name: '${name}'!`);
+export default (tree, formatter) => {
+  if (!_.has(formatters, formatter)) {
+    throw new Error(`Unknown formatter: '${formatter}'!`);
   }
 
-  const formatTree = formatters[name];
+  const formatTree = formatters[formatter];
 
   return formatTree(tree);
 };

@@ -6,6 +6,7 @@ const getIndent = (depth) => _.repeat(doubleIndent, depth);
 
 const getSignIndent = (type) => {
   switch (type) {
+    case 'parent':
     case 'unchanged':
       return doubleIndent;
     case 'removed':
@@ -19,9 +20,10 @@ const getSignIndent = (type) => {
 
 const getFullIndent = (depth, type = null) => getIndent(depth - 1) + getSignIndent(type);
 const formatKey = (key) => (key ? `${key}: ` : '');
-const getFormattedIndentWithKey = (key, depth, type = null) => (
-  getFullIndent(type, depth) + formatKey(key)
-);
+const getFormattedIndentWithKey = (key, depth, type = null) => {
+  const indent = depth ? getFullIndent(depth, type) : '';
+  return indent + formatKey(key);
+};
 
 const formatKeyValue = (key, value) => `${key}: ${value}`;
 
@@ -45,24 +47,24 @@ const formatValue = (value, depth) => (
 
 const mapChildren = (children, depth, iter) => (
   children
-    .map((obj) => iter(obj, depth))
+    .map((node) => iter(node, depth))
     .join('')
 );
 
 export default (tree) => {
-  const iter = (obj, depth = 0) => {
+  const iter = (node, depth = 0) => {
     const getKeyString = (type) => (
-      getFormattedIndentWithKey(obj.key, type, depth)
+      getFormattedIndentWithKey(node.key, depth, type)
     );
 
-    if (obj.type === 'changed') {
-      return `${getKeyString('removed')}${formatValue(obj.oldValue, depth + 1)}\n`
-        + `${getKeyString('added')}${formatValue(obj.value, depth + 1)}\n`;
+    if (node.type === 'changed') {
+      return `${getKeyString('removed')}${formatValue(node.oldValue, depth + 1)}\n`
+        + `${getKeyString('added')}${formatValue(node.value, depth + 1)}\n`;
     }
 
-    const inner = _.has(obj, 'children')
-      ? `${getKeyString(obj.type)}{\n${mapChildren(obj.children, depth + 1, iter)}${getIndent(depth)}}`
-      : `${getKeyString(obj.type)}${formatValue(obj.value, depth + 1)}`;
+    const inner = node.type === 'parent'
+      ? `${getKeyString(node.type)}{\n${mapChildren(node.children, depth + 1, iter)}${getIndent(depth)}}`
+      : `${getKeyString(node.type)}${formatValue(node.value, depth + 1)}`;
 
     return depth > 0 ? `${inner}\n` : inner;
   };

@@ -11,7 +11,7 @@ const getFormatPath = (path) => _.compact(path).join('.');
 
 const generateRowsFromChildren = (children, path, generateRow) => (
   children
-    .reduce((acc, obj) => [...acc, generateRow([...path, obj.key], obj.key)], '')
+    .reduce((acc, node) => [...acc, generateRow([...path, node.key], node.key)], '')
     .join('\n')
 );
 
@@ -28,21 +28,21 @@ const getFormatRow = (path, item) => (
 );
 
 const generateRow = (path, item) => (
-  _.has(item, 'children')
+  item.type === 'parent'
     ? generateRowsFromChildren(item.children, path, generateRow)
     : getFormatRow(path, item)
 );
 
 export default (tree) => {
-  const iter = (obj, path = [], carry = []) => {
-    if (_.has(obj, 'children')) {
-      return [...carry, obj.children
-        .reduce((acc, item) => [...acc, ...iter(item, [...path, obj.key])], [])
+  const iter = (node, path = [], carry = []) => {
+    if (node.type === 'parent') {
+      return [...carry, node.children
+        .reduce((acc, item) => [...acc, ...iter(item, [...path, node.key])], [])
         .join('\n')];
     }
 
-    if (obj.type !== 'unchanged') {
-      return [...carry, generateRow([...path, obj.key], obj)];
+    if (node.type !== 'unchanged') {
+      return [...carry, generateRow([...path, node.key], node)];
     }
 
     return carry;

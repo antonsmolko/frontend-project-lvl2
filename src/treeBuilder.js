@@ -15,7 +15,7 @@ const generateTreeChildren = (data1, data2) => {
 
     if (_.isPlainObject(data1[key]) && _.isPlainObject(data2[key])) {
       return {
-        type: 'unchanged',
+        type: 'parent',
         key,
         children: generateTreeChildren(data1[key], data2[key]),
       };
@@ -39,7 +39,6 @@ const generateTreeChildren = (data1, data2) => {
 };
 
 export default (data1, data2) => ({
-  key: null,
-  type: 'tree',
+  type: 'parent',
   children: generateTreeChildren(data1, data2),
 });
