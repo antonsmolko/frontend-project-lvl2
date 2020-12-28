@@ -5,7 +5,7 @@ import plain from './plain.js';
 const formatters = {
   stylish,
   plain,
-  json: (tree) => JSON.stringify(tree),
+  json: JSON.stringify,
 };
 
 export default (tree, formatter) => {

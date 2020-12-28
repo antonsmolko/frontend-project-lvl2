@@ -1,13 +1,13 @@
 import _ from 'lodash';
 
-const getFormatValue = (value) => {
+const getFormattedValue = (value) => {
   if (_.isObject(value)) return '[complex value]';
   if (_.isString(value)) return `'${value}'`;
 
   return value;
 };
 
-const getFormatPath = (path) => _.compact(path).join('.');
+const getFormattedPath = (path) => _.compact(path).join('.');
 
 const generateRowsFromChildren = (children, path, generateRow) => (
   children
@@ -15,38 +15,41 @@ const generateRowsFromChildren = (children, path, generateRow) => (
     .join('\n')
 );
 
-const postfix = {
-  added: ({ value }) => `was added with value: ${getFormatValue(value)}`,
-  changed: ({ oldValue, value }) => (
-    `was updated. From ${getFormatValue(oldValue)} to ${getFormatValue(value)}`
-  ),
-  removed: () => 'was removed',
+const getFormattedRow = (path, item) => {
+  const firstPartRow = `Property '${getFormattedPath(path)}'`;
+
+  switch (item.type) {
+    case 'added':
+      return `${firstPartRow} was added with value: ${getFormattedValue(item.value)}`;
+    case 'changed':
+      return `${firstPartRow} was updated. From ${getFormattedValue(item.oldValue)} to ${getFormattedValue(item.value)}`;
+    case 'removed':
+      return `${firstPartRow} was removed`;
+    default:
+      return '';
+  }
 };
 
-const getFormatRow = (path, item) => (
-  `Property '${getFormatPath(path)}' ${postfix[item.type](item)}`
-);
-
 const generateRow = (path, item) => (
-  item.type === 'parent'
+  item.type === 'nested'
     ? generateRowsFromChildren(item.children, path, generateRow)
-    : getFormatRow(path, item)
+    : getFormattedRow(path, item)
 );
 
 export default (tree) => {
-  const iter = (node, path = [], carry = []) => {
-    if (node.type === 'parent') {
-      return [...carry, node.children
-        .reduce((acc, item) => [...acc, ...iter(item, [...path, node.key])], [])
-        .join('\n')];
+  const iter = (node, path = []) => {
+    if (node.type === 'nested') {
+      return _.compact(node.children
+        .flatMap((item) => iter(item, [...path, node.key])))
+        .join('\n');
     }
 
     if (node.type !== 'unchanged') {
-      return [...carry, generateRow([...path, node.key], node)];
+      return generateRow([...path, node.key], node);
     }
 
-    return carry;
+    return '';
   };
 
-  return iter(tree).join('\n');
+  return iter(tree);
 };

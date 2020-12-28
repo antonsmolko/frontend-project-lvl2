@@ -6,7 +6,7 @@ const getIndent = (depth) => _.repeat(doubleIndent, depth);
 
 const getSignIndent = (type) => {
   switch (type) {
-    case 'parent':
+    case 'nested':
     case 'unchanged':
       return doubleIndent;
     case 'removed':
@@ -53,18 +53,14 @@ const mapChildren = (children, depth, iter) => (
 
 export default (tree) => {
   const iter = (node, depth = 0) => {
-    const getKeyString = (type) => (
-      getFormattedIndentWithKey(node.key, depth, type)
-    );
-
     if (node.type === 'changed') {
-      return `${getKeyString('removed')}${formatValue(node.oldValue, depth + 1)}\n`
-        + `${getKeyString('added')}${formatValue(node.value, depth + 1)}\n`;
+      return `${getFormattedIndentWithKey(node.key, depth, 'removed')}${formatValue(node.oldValue, depth + 1)}\n`
+        + `${getFormattedIndentWithKey(node.key, depth, 'added')}${formatValue(node.value, depth + 1)}\n`;
     }
 
-    const inner = node.type === 'parent'
-      ? `${getKeyString(node.type)}{\n${mapChildren(node.children, depth + 1, iter)}${getIndent(depth)}}`
-      : `${getKeyString(node.type)}${formatValue(node.value, depth + 1)}`;
+    const inner = node.type === 'nested'
+      ? `${getFormattedIndentWithKey(node.key, depth, node.type)}{\n${mapChildren(node.children, depth + 1, iter)}${getIndent(depth)}}`
+      : `${getFormattedIndentWithKey(node.key, depth, node.type)}${formatValue(node.value, depth + 1)}`;
 
     return depth > 0 ? `${inner}\n` : inner;
   };
