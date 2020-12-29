@@ -1,6 +1,6 @@
 import _ from 'lodash';
 
-const buildTreeChildren = (data1, data2) => {
+const buildTree = (data1, data2) => {
   const keys = _.union(_.keys(data1), _.keys(data2));
   const sortedKeys = _.sortBy(keys);
 
@@ -17,7 +17,7 @@ const buildTreeChildren = (data1, data2) => {
       return {
         type: 'nested',
         key,
-        children: buildTreeChildren(data1[key], data2[key]),
+        children: buildTree(data1[key], data2[key]),
       };
     }
 
@@ -29,7 +29,7 @@ const buildTreeChildren = (data1, data2) => {
       type: 'changed',
       key,
       oldValue: data1[key],
-      value: data2[key],
+      newValue: data2[key],
     };
   });
 
@@ -37,6 +37,6 @@ const buildTreeChildren = (data1, data2) => {
 };
 
 export default (data1, data2) => ({
-  type: 'nested',
-  children: buildTreeChildren(data1, data2),
+  type: 'root',
+  children: buildTree(data1, data2),
 });

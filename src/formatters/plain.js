@@ -22,7 +22,7 @@ const getFormattedRow = (path, item) => {
     case 'added':
       return `${firstPartRow} was added with value: ${getFormattedValue(item.value)}`;
     case 'changed':
-      return `${firstPartRow} was updated. From ${getFormattedValue(item.oldValue)} to ${getFormattedValue(item.value)}`;
+      return `${firstPartRow} was updated. From ${getFormattedValue(item.oldValue)} to ${getFormattedValue(item.newValue)}`;
     case 'removed':
       return `${firstPartRow} was removed`;
     default:
@@ -31,14 +31,14 @@ const getFormattedRow = (path, item) => {
 };
 
 const generateRow = (path, item) => (
-  item.type === 'nested'
+  item.type === 'nested' || item.type === 'root'
     ? generateRowsFromChildren(item.children, path, generateRow)
     : getFormattedRow(path, item)
 );
 
 export default (tree) => {
   const iter = (node, path = []) => {
-    if (node.type === 'nested') {
+    if (node.type === 'nested' || node.type === 'root') {
       return _.compact(node.children
         .flatMap((item) => iter(item, [...path, node.key])))
         .join('\n');
