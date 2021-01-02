@@ -1,54 +1,35 @@
 import _ from 'lodash';
 
-const getFormattedValue = (value) => {
-  if (_.isObject(value)) return '[complex value]';
-  if (_.isString(value)) return `'${value}'`;
+const stringifyValue = (value) => {
+  if (_.isObject(value)) {
+    return '[complex value]';
+  }
+
+  if (_.isString(value)) {
+    return `'${value}'`;
+  }
 
   return value;
 };
 
-const getFormattedPath = (path) => _.compact(path).join('.');
-
-const generateRowsFromChildren = (children, path, generateRow) => (
-  children
-    .reduce((acc, node) => [...acc, generateRow([...path, node.key], node.key)], '')
-    .join('\n')
-);
-
-const getFormattedRow = (path, item) => {
-  const firstPartRow = `Property '${getFormattedPath(path)}'`;
-
-  switch (item.type) {
-    case 'added':
-      return `${firstPartRow} was added with value: ${getFormattedValue(item.value)}`;
-    case 'changed':
-      return `${firstPartRow} was updated. From ${getFormattedValue(item.oldValue)} to ${getFormattedValue(item.newValue)}`;
-    case 'removed':
-      return `${firstPartRow} was removed`;
-    default:
-      return '';
-  }
-};
-
-const generateRow = (path, item) => (
-  item.type === 'nested' || item.type === 'root'
-    ? generateRowsFromChildren(item.children, path, generateRow)
-    : getFormattedRow(path, item)
-);
-
 export default (tree) => {
   const iter = (node, path = []) => {
-    if (node.type === 'nested' || node.type === 'root') {
-      return _.compact(node.children
-        .flatMap((item) => iter(item, [...path, node.key])))
-        .join('\n');
-    }
+    const currentPath = [...path, node.key];
 
-    if (node.type !== 'unchanged') {
-      return generateRow([...path, node.key], node);
+    switch (node.type) {
+      case 'root':
+        return node.children.flatMap((item) => iter(item, [])).join('\n');
+      case 'nested':
+        return _.compact(node.children.flatMap((item) => iter(item, currentPath))).join('\n');
+      case 'added':
+        return `Property '${currentPath.join('.')}' was added with value: ${stringifyValue(node.value)}`;
+      case 'changed':
+        return `Property '${currentPath.join('.')}' was updated. From ${stringifyValue(node.oldValue)} to ${stringifyValue(node.newValue)}`;
+      case 'removed':
+        return `Property '${currentPath.join('.')}' was removed`;
+      default:
+        return '';
     }
-
-    return '';
   };
 
   return iter(tree);
