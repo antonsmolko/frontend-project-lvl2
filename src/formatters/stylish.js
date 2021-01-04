@@ -1,24 +1,24 @@
 import _ from 'lodash';
 
-const baseIndent = '  ';
-const doubleIndent = _.repeat(baseIndent, 2);
-const getIndent = (depth) => _.repeat(doubleIndent, depth);
+const space = ' ';
+const getIndent = (depth, numSpaces = 4) => _.repeat(space, numSpaces * depth);
+const getIndentBySign = (sign) => `${_.repeat(space, 2)}${sign}${space}`;
 
-const getSignIndent = (type) => {
+const getIndentByType = (type) => {
   switch (type) {
     case 'nested':
     case 'unchanged':
-      return doubleIndent;
+      return getIndentBySign(space);
     case 'removed':
-      return `${baseIndent}- `;
+      return getIndentBySign('-');
     case 'added':
-      return `${baseIndent}+ `;
+      return getIndentBySign('+');
     default:
-      return '';
+      throw new Error(`Unknown node type: '${type}'!`);
   }
 };
 
-const getFullIndent = (depth, type = null) => getIndent(depth - 1) + getSignIndent(type);
+const getFullIndent = (depth, type = null) => getIndent(depth - 1) + getIndentByType(type);
 const formatKey = (key) => (key ? `${key}: ` : '');
 const getFormattedIndentWithKey = (key, depth, type = null) => {
   const indent = depth ? getFullIndent(depth, type) : '';
@@ -52,15 +52,19 @@ const mapChildren = (children, depth, iter) => (
 export default (tree) => {
   const iter = (node, depth = 0) => {
     switch (node.type) {
-      case 'changed':
-        return `${getFormattedIndentWithKey(node.key, depth, 'removed')}${formatValue(node.oldValue, depth + 1)}\n`
-          + `${getFormattedIndentWithKey(node.key, depth, 'added')}${formatValue(node.newValue, depth + 1)}\n`;
       case 'root':
         return `${getFormattedIndentWithKey(node.key, depth, node.type)}{\n${mapChildren(node.children, depth + 1, iter)}${getIndent(depth)}}`;
       case 'nested':
         return `${getFormattedIndentWithKey(node.key, depth, node.type)}{\n${mapChildren(node.children, depth + 1, iter)}${getIndent(depth)}}\n`;
-      default:
+      case 'changed':
+        return `${getFormattedIndentWithKey(node.key, depth, 'removed')}${formatValue(node.oldValue, depth + 1)}\n`
+          + `${getFormattedIndentWithKey(node.key, depth, 'added')}${formatValue(node.newValue, depth + 1)}\n`;
+      case 'unchanged':
+      case 'added':
+      case 'removed':
         return `${getFormattedIndentWithKey(node.key, depth, node.type)}${formatValue(node.value, depth + 1)}\n`;
+      default:
+        throw new Error(`Unknown node type: '${node.type}'!`);
     }
   };
 

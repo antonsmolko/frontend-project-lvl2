@@ -12,25 +12,29 @@ const stringifyValue = (value) => {
   return value;
 };
 
+const generatePath = (parents, currentKey) => [...parents, currentKey].join('.');
+
 export default (tree) => {
-  const iter = (node, path = []) => {
-    const currentPath = [...path, node.key];
+  const iter = (node, parents = []) => {
+    const path = generatePath(parents, node.key);
 
     switch (node.type) {
       case 'root':
-        return node.children.flatMap((item) => iter(item, [])).join('\n');
+        return node.children.flatMap((item) => iter(item, []));
       case 'nested':
-        return _.compact(node.children.flatMap((item) => iter(item, currentPath))).join('\n');
+        return node.children.flatMap((item) => iter(item, [...parents, node.key]));
       case 'added':
-        return `Property '${currentPath.join('.')}' was added with value: ${stringifyValue(node.value)}`;
-      case 'changed':
-        return `Property '${currentPath.join('.')}' was updated. From ${stringifyValue(node.oldValue)} to ${stringifyValue(node.newValue)}`;
+        return `Property '${path}' was added with value: ${stringifyValue(node.value)}`;
       case 'removed':
-        return `Property '${currentPath.join('.')}' was removed`;
+        return `Property '${path}' was removed`;
+      case 'changed':
+        return `Property '${path}' was updated. From ${stringifyValue(node.oldValue)} to ${stringifyValue(node.newValue)}`;
+      case 'unchanged':
+        return [];
       default:
-        return '';
+        throw new Error(`Unknown node type: '${node.type}'!`);
     }
   };
 
-  return iter(tree);
+  return iter(tree).join('\n');
 };
