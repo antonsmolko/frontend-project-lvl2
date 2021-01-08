@@ -1,78 +1,46 @@
 import _ from 'lodash';
 
-const space = ' ';
-const getIndent = (depth, numSpaces = 4) => _.repeat(space, numSpaces * depth);
-const getIndentBySign = (sign) => `${_.repeat(space, 2)}${sign}${space}`;
-
-const getIndentByType = (type) => {
-  switch (type) {
-    case 'nested':
-    case 'unchanged':
-      return getIndentBySign(space);
-    case 'removed':
-      return getIndentBySign('-');
-    case 'added':
-      return getIndentBySign('+');
-    default:
-      throw new Error(`Unknown node type: '${type}'!`);
-  }
-};
-
-const getFullIndent = (depth, type = null) => getIndent(depth - 1) + getIndentByType(type);
-const formatKey = (key) => (key ? `${key}: ` : '');
-const getFormattedIndentWithKey = (key, depth, type = null) => {
-  const indent = depth ? getFullIndent(depth, type) : '';
-  return indent + formatKey(key);
-};
+const getIndent = (depth, decrement = 0) => (' ').repeat(depth * 4 - decrement);
 
 const formatKeyValue = (key, value) => `${key}: ${value}`;
 
 const formatObjectValue = (obj, depth, format) => {
   const inner = Object.keys(obj)
-    .map((key) => (
-      _.isPlainObject(obj[key])
-        ? formatKeyValue(key, formatObjectValue(obj[key], depth + 1, format))
-        : formatKeyValue(key, format(obj[key], depth))
-    ))
+    .map((key) => {
+      if (_.isPlainObject(obj[key])) {
+        return formatKeyValue(key, formatObjectValue(obj[key], depth + 1, format));
+      }
+
+      return formatKeyValue(key, format(obj[key], depth));
+    })
     .join(`\n${getIndent(depth)}`);
 
   return `{\n${getIndent(depth)}${inner}\n${getIndent(depth - 1)}}`;
 };
 
-const formatValue = (value, depth) => (
-  _.isPlainObject(value)
-    ? formatObjectValue(value, depth, formatValue)
-    : value
-);
+const formatValue = (value, depth) => {
+  if (_.isPlainObject(value)) {
+    return formatObjectValue(value, depth, formatValue);
+  }
 
-const mapChildren = (children, depth, iter) => (
-  children.map((node) => iter(node, depth)).join('')
-);
-
-const formatChildrenOutput = (node, depth, iter) => (
-  `${getFormattedIndentWithKey(node.key, depth, node.type)}{\n${mapChildren(node.children, depth + 1, iter)}${getIndent(depth)}}`
-);
-
-const formatValueOutput = (node, depth) => (
-  `${getFormattedIndentWithKey(node.key, depth, node.type)}${formatValue(node.value, depth + 1)}\n`
-);
+  return value;
+};
 
 export default (tree) => {
   const iter = (node, depth = 0) => {
-    const removedFromChanged = { ...node, type: 'removed', value: node.oldValue };
-    const addedFromChanged = { ...node, type: 'added', value: node.newValue };
-
     switch (node.type) {
       case 'root':
-        return formatChildrenOutput(node, depth, iter);
+        return `{\n${node.children.map((child) => iter(child, depth + 1)).join('')}${getIndent(depth)}}`;
       case 'nested':
-        return `${formatChildrenOutput(node, depth, iter)}\n`;
+        return `${getIndent(depth)}${node.key}: {\n${node.children.map((child) => iter(child, depth + 1)).join('')}${getIndent(depth)}}\n`;
       case 'changed':
-        return `${formatValueOutput(removedFromChanged, depth)}${formatValueOutput(addedFromChanged, depth)}`;
+        return `${getIndent(depth, 2)}- ${node.key}: ${formatValue(node.oldValue, depth + 1)}\n${getIndent(depth, 2)}+ ${node.key}: ${formatValue(node.newValue, depth + 1)}\n`;
       case 'unchanged':
+        return `${getIndent(depth)}${node.key}: ${formatValue(node.value, depth + 1)}\n`;
       case 'added':
+        return `${getIndent(depth, 2)}+ ${node.key}: ${formatValue(node.value, depth + 1)}\n`;
       case 'removed':
-        return formatValueOutput(node, depth);
+        return `${getIndent(depth, 2)}- ${node.key}: ${formatValue(node.value, depth + 1)}\n`;
       default:
         throw new Error(`Unknown node type: '${node.type}'!`);
     }

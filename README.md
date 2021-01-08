@@ -16,7 +16,7 @@ $ make install
 
 $ make publish
 
-$ sudo npm link
+$ npm link
 ```
 
 ### Example with .json files:
@@ -186,7 +186,7 @@ Property 'group3' was added with value: [complex value]
 $ gendiff --format plain ./examples/file1.json ./examples/file2.json
 ```
 ```
-[{"state":"object","key":"common","value":[{"state":"adding","key":"follow","value":false},{"state":"equal","key":"setting1","value":"Value 1"},{"state":"missing","key":"setting2","value":200},{"state":"updating","key":"setting3","oldValue":true,"value":null},{"state":"adding","key":"setting4","value":"blah blah"},{"state":"adding","key":"setting5","value":{"key5":"value5"}},{"state":"object","key":"setting6","value":[{"state":"object","key":"doge","value":[{"state":"updating","key":"wow","oldValue":"","value":"so much"}]},{"state":"equal","key":"key","value":"value"},{"state":"adding","key":"ops","value":"vops"}]}]},{"state":"object","key":"group1","value":[{"state":"updating","key":"baz","oldValue":"bas","value":"bars"},{"state":"equal","key":"foo","value":"bar"},{"state":"updating","key":"nest","oldValue":{"key":"value"},"value":"str"}]},{"state":"missing","key":"group2","value":{"abc":12345,"deep":{"id":45}}},{"state":"adding","key":"group3","value":{"fee":100500,"deep":{"id":{"number":45}}}}]
+{"type":"root","children":[{"type":"nested","key":"common","children":[{"type":"unchanged","key":"setting1","value":"Value 1"},{"type":"added","key":"setting5","value":{"key5":"value5"}},{"type":"removed","key":"setting6","value":{"key":"value","doge":{"wow":""}}}]}]}
 ```
 
 ### Used as a package

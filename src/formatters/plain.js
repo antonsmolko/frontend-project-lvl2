@@ -1,6 +1,6 @@
 import _ from 'lodash';
 
-const stringifyValue = (value) => {
+const stringify = (value) => {
   if (_.isObject(value)) {
     return '[complex value]';
   }
@@ -16,19 +16,17 @@ const generatePath = (parents, currentKey) => [...parents, currentKey].join('.')
 
 export default (tree) => {
   const iter = (node, parents = []) => {
-    const path = generatePath(parents, node.key);
-
     switch (node.type) {
       case 'root':
-        return node.children.flatMap((item) => iter(item, []));
+        return node.children.flatMap((child) => iter(child, []));
       case 'nested':
-        return node.children.flatMap((item) => iter(item, [...parents, node.key]));
+        return node.children.flatMap((child) => iter(child, [...parents, node.key]));
       case 'added':
-        return `Property '${path}' was added with value: ${stringifyValue(node.value)}`;
+        return `Property '${generatePath(parents, node.key)}' was added with value: ${stringify(node.value)}`;
       case 'removed':
-        return `Property '${path}' was removed`;
+        return `Property '${generatePath(parents, node.key)}' was removed`;
       case 'changed':
-        return `Property '${path}' was updated. From ${stringifyValue(node.oldValue)} to ${stringifyValue(node.newValue)}`;
+        return `Property '${generatePath(parents, node.key)}' was updated. From ${stringify(node.oldValue)} to ${stringify(node.newValue)}`;
       case 'unchanged':
         return [];
       default:
