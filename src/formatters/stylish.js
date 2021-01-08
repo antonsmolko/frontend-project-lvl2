@@ -2,16 +2,14 @@ import _ from 'lodash';
 
 const getIndent = (depth, decrement = 0) => (' ').repeat(depth * 4 - decrement);
 
-const formatKeyValue = (key, value) => `${key}: ${value}`;
-
 const formatObjectValue = (obj, depth, format) => {
   const inner = Object.keys(obj)
     .map((key) => {
       if (_.isPlainObject(obj[key])) {
-        return formatKeyValue(key, formatObjectValue(obj[key], depth + 1, format));
+        return `${key}: ${formatObjectValue(obj[key], depth + 1, format)}`;
       }
 
-      return formatKeyValue(key, format(obj[key], depth));
+      return `${key}: ${format(obj[key], depth)}`;
     })
     .join(`\n${getIndent(depth)}`);
 
