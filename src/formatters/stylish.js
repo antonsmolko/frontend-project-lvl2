@@ -1,44 +1,33 @@
 import _ from 'lodash';
 
-const getIndent = (depth, decrement = 0) => (' ').repeat(depth * 4 - decrement);
+const indent = (depth, spacesCount = 4) => (' ').repeat(depth * spacesCount - 2);
 
-const formatObjectValue = (obj, depth, format) => {
-  const inner = Object.keys(obj)
-    .map((key) => {
-      if (_.isPlainObject(obj[key])) {
-        return `${key}: ${formatObjectValue(obj[key], depth + 1, format)}`;
-      }
-
-      return `${key}: ${format(obj[key], depth)}`;
-    })
-    .join(`\n${getIndent(depth)}`);
-
-  return `{\n${getIndent(depth)}${inner}\n${getIndent(depth - 1)}}`;
-};
-
-const formatValue = (value, depth) => {
-  if (_.isPlainObject(value)) {
-    return formatObjectValue(value, depth, formatValue);
+const stringify = (value, depth) => {
+  if (!_.isPlainObject(value)) {
+    return value;
   }
 
-  return value;
+  const inner = Object.entries(value).map(([key, val]) => `${key}: ${stringify(val, depth + 1)}`)
+    .join(`\n${indent(depth)}${indent(1)}`);
+
+  return `{\n${indent(depth)}${indent(1)}${inner}\n${indent(depth - 1)}${indent(1)}}`;
 };
 
 export default (tree) => {
   const iter = (node, depth = 0) => {
     switch (node.type) {
       case 'root':
-        return `{\n${node.children.map((child) => iter(child, depth + 1)).join('')}${getIndent(depth)}}`;
+        return `{\n${node.children.map((child) => iter(child, depth + 1)).join('')}}`;
       case 'nested':
-        return `${getIndent(depth)}${node.key}: {\n${node.children.map((child) => iter(child, depth + 1)).join('')}${getIndent(depth)}}\n`;
+        return `${indent(depth)}${indent(1)}${node.key}: {\n${node.children.map((child) => iter(child, depth + 1)).join('')}${indent(depth)}${indent(1)}}\n`;
       case 'changed':
-        return `${getIndent(depth, 2)}- ${node.key}: ${formatValue(node.oldValue, depth + 1)}\n${getIndent(depth, 2)}+ ${node.key}: ${formatValue(node.newValue, depth + 1)}\n`;
+        return `${indent(depth)}- ${node.key}: ${stringify(node.oldValue, depth + 1)}\n${indent(depth)}+ ${node.key}: ${stringify(node.newValue, depth + 1)}\n`;
       case 'unchanged':
-        return `${getIndent(depth)}${node.key}: ${formatValue(node.value, depth + 1)}\n`;
+        return `${indent(depth)}${indent(1)}${node.key}: ${stringify(node.value, depth + 1)}\n`;
       case 'added':
-        return `${getIndent(depth, 2)}+ ${node.key}: ${formatValue(node.value, depth + 1)}\n`;
+        return `${indent(depth)}+ ${node.key}: ${stringify(node.value, depth + 1)}\n`;
       case 'removed':
-        return `${getIndent(depth, 2)}- ${node.key}: ${formatValue(node.value, depth + 1)}\n`;
+        return `${indent(depth)}- ${node.key}: ${stringify(node.value, depth + 1)}\n`;
       default:
         throw new Error(`Unknown node type: '${node.type}'!`);
     }
