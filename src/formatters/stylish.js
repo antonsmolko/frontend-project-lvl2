@@ -7,10 +7,9 @@ const stringify = (value, depth) => {
     return value;
   }
 
-  const inner = Object.entries(value).map(([key, val]) => `${key}: ${stringify(val, depth + 1)}`)
-    .join(`\n${indent(depth)}${indent(1)}`);
+  const inner = Object.entries(value).map(([key, val]) => `${indent(depth + 0.5)}${key}: ${stringify(val, depth + 1)}`).join('\n');
 
-  return `{\n${indent(depth)}${indent(1)}${inner}\n${indent(depth - 1)}${indent(1)}}`;
+  return `{\n${inner}\n${indent(depth - 0.5)}}`;
 };
 
 export default (tree) => {
@@ -19,11 +18,11 @@ export default (tree) => {
       case 'root':
         return `{\n${node.children.map((child) => iter(child, depth + 1)).join('')}}`;
       case 'nested':
-        return `${indent(depth)}${indent(1)}${node.key}: {\n${node.children.map((child) => iter(child, depth + 1)).join('')}${indent(depth)}${indent(1)}}\n`;
+        return `${indent(depth + 0.5)}${node.key}: {\n${node.children.map((child) => iter(child, depth + 1)).join('')}${indent(depth + 0.5)}}\n`;
       case 'changed':
         return `${indent(depth)}- ${node.key}: ${stringify(node.oldValue, depth + 1)}\n${indent(depth)}+ ${node.key}: ${stringify(node.newValue, depth + 1)}\n`;
       case 'unchanged':
-        return `${indent(depth)}${indent(1)}${node.key}: ${stringify(node.value, depth + 1)}\n`;
+        return `${indent(depth + 0.5)}${node.key}: ${stringify(node.value, depth + 1)}\n`;
       case 'added':
         return `${indent(depth)}+ ${node.key}: ${stringify(node.value, depth + 1)}\n`;
       case 'removed':
