@@ -32,7 +32,6 @@
   "dependencies": {
     "@types/jest": "^26.0.15",
     "commander": "^6.2.0",
-    "debug": "^4.2.0",
     "js-yaml": "^3.14.0",
     "lodash": "^4.17.20"
   },

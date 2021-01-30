@@ -18,13 +18,15 @@ const formats = [
   'yml',
 ];
 
-test
-  .each(formats)('Test genDiff with .%s files', (format) => {
-    const path2 = getFixturePath(`file2.${format}`);
-    const path1 = getFixturePath(`file1.${format}`);
+describe.each(formats)('Test genDiff with .%s files', (format) => {
+  const path1 = getFixturePath(`file1.${format}`);
+  const path2 = getFixturePath(`file2.${format}`);
 
+  test(`${format}`, () => {
     expect(genDiff(path1, path2)).toEqual(stylishResult);
     expect(genDiff(path1, path2, 'stylish')).toEqual(stylishResult);
     expect(genDiff(path1, path2, 'plain')).toEqual(plainResult);
+    expect(() => { JSON.parse(genDiff(path1, path2, 'json')); }).not.toThrow();
     expect(genDiff(path1, path2, 'json')).toEqual(jsonResult);
   });
+});
