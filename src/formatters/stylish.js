@@ -1,8 +1,6 @@
 import _ from 'lodash';
 
-const indent = (depth, spacesCount = 4) => (
-  depth ? (' ').repeat(depth * spacesCount - 2) : ''
-);
+const indent = (depth, spacesCount = 4) => (' ').repeat(depth * spacesCount - 2);
 
 const stringify = (value, depth) => {
   if (!_.isPlainObject(value)) {
@@ -16,24 +14,31 @@ const stringify = (value, depth) => {
 
 export default (tree) => {
   const iter = (node, depth) => {
-    const oldValue = `${indent(depth)}- ${node.key}: ${stringify(node.oldValue, depth)}\n`;
-    const newValue = `${indent(depth)}+ ${node.key}: ${stringify(node.newValue, depth)}`;
-
     switch (node.type) {
-      case 'root':
+      case 'root': {
         return `{\n${node.children.map((child) => iter(child, depth + 1)).join('\n')}\n}`;
-      case 'nested':
+      }
+      case 'nested': {
         return `${indent(depth)}  ${node.key}: {\n${node.children.map((child) => iter(child, depth + 1)).join('\n')}\n${indent(depth)}  }`;
-      case 'changed':
+      }
+      case 'changed': {
+        const oldValue = `${indent(depth)}- ${node.key}: ${stringify(node.oldValue, depth)}\n`;
+        const newValue = `${indent(depth)}+ ${node.key}: ${stringify(node.newValue, depth)}`;
+
         return `${oldValue}${newValue}`;
-      case 'unchanged':
+      }
+      case 'unchanged': {
         return `${indent(depth)}  ${node.key}: ${stringify(node.value, depth)}`;
-      case 'added':
+      }
+      case 'added': {
         return `${indent(depth)}+ ${node.key}: ${stringify(node.value, depth)}`;
-      case 'removed':
+      }
+      case 'removed': {
         return `${indent(depth)}- ${node.key}: ${stringify(node.value, depth)}`;
-      default:
+      }
+      default: {
         throw new Error(`Unknown node type: '${node.type}'!`);
+      }
     }
   };
 
