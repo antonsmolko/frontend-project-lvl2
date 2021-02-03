@@ -16,16 +16,20 @@ export default (tree) => {
   const iter = (node, depth) => {
     switch (node.type) {
       case 'root': {
-        return `{\n${node.children.map((child) => iter(child, depth + 1)).join('\n')}\n}`;
+        const childrens = node.children.map((child) => iter(child, depth + 1));
+
+        return `{\n${childrens.join('\n')}\n}`;
       }
       case 'nested': {
-        return `${indent(depth)}  ${node.key}: {\n${node.children.map((child) => iter(child, depth + 1)).join('\n')}\n${indent(depth)}  }`;
+        const childrens = node.children.map((child) => iter(child, depth + 1));
+
+        return `${indent(depth)}  ${node.key}: {\n${childrens.join('\n')}\n${indent(depth)}  }`;
       }
       case 'changed': {
-        const oldValue = `${indent(depth)}- ${node.key}: ${stringify(node.oldValue, depth)}\n`;
+        const oldValue = `${indent(depth)}- ${node.key}: ${stringify(node.oldValue, depth)}`;
         const newValue = `${indent(depth)}+ ${node.key}: ${stringify(node.newValue, depth)}`;
 
-        return `${oldValue}${newValue}`;
+        return `${oldValue}\n${newValue}`;
       }
       case 'unchanged': {
         return `${indent(depth)}  ${node.key}: ${stringify(node.value, depth)}`;
